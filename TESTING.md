@@ -70,10 +70,10 @@ Use one manager and two member accounts after migrations have been applied. Mark
 
 Static inspection confirmed `.gitignore` ignores `.env*` except `.env.example`, and `.env.example` is the only tracked env-like file; it contains the two required names with empty values. The `process.env` references found are limited to:
 
-- `proxy.ts`: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `lib/supabase/browser.ts`: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `lib/supabase/server.ts`: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `lib/supabase/proxy.ts`: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `proxy.ts`: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- `lib/supabase/client.ts`: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- `lib/supabase/server.ts`: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- `lib/supabase/proxy.ts`: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 
 Static searches found no service-role key value or database password in repository source/configuration. Supabase config role names and password-policy settings are not credentials. The local env file was not opened or copied for this audit.
 

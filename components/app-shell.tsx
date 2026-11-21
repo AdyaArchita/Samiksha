@@ -1,11 +1,12 @@
 import { signOut } from "@/app/actions/auth";
+import type { ReactNode } from "react";
 
 export function AppShell({
   title,
   children,
 }: {
-  title: string;
-  children: React.ReactNode;
+  title: ReactNode;
+  children: ReactNode;
 }) {
   return (
     <main className="min-h-screen bg-zinc-50">

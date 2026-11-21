@@ -1,23 +1,23 @@
-import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/app-shell";
 import { StatusBadge } from "@/components/status-badge";
+import { requireRole } from "@/lib/auth";
 import type { Task } from "@/lib/types";
 
-export default async function MemberPage() {
+async function MemberTaskList() {
+  const user = await requireRole("member");
   const supabase = await createSupabaseServerClient();
-  const { data: auth } = await supabase.auth.getUser();
-  if (!auth.user) redirect("/login");
 
   const { data: tasksData } = await supabase
     .from("tasks")
     .select("*")
-    .eq("assignee_id", auth.user.id)
+    .eq("assignee_id", user.id)
     .order("created_at", { ascending: false });
   const tasks = (tasksData ?? []) as Task[];
 
   return (
-    <AppShell title="My tasks">
+    <>
       {tasks.length === 0 ? (
         <p className="rounded-lg border bg-white p-6 text-sm text-zinc-600">No tasks are assigned to you.</p>
       ) : (
@@ -46,6 +46,23 @@ export default async function MemberPage() {
           })}
         </div>
       )}
+    </>
+  );
+}
+
+export default function MemberPage() {
+  return (
+    <AppShell title="My tasks">
+      <Suspense
+        fallback={
+          <div className="space-y-3" aria-label="Loading your tasks">
+            <div className="h-28 animate-pulse rounded-lg bg-zinc-200" />
+            <div className="h-28 animate-pulse rounded-lg bg-zinc-200" />
+          </div>
+        }
+      >
+        <MemberTaskList />
+      </Suspense>
     </AppShell>
   );
 }

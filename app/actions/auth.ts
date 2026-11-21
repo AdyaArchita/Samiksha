@@ -65,7 +65,7 @@ export async function signOut() {
   const { error } = await supabase.auth.signOut();
   if (error) {
     logDatabaseError(error, error.code);
-    redirect(`/login?error=${encodeURIComponent(friendlyPostgresError(error))}`);
+    redirect("/login?error=sign_out_failed");
   }
   redirect("/login");
 }

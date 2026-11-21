@@ -1,5 +1,9 @@
-import { redirect } from "next/navigation";
-
 export default function Home() {
-  redirect("/dashboard");
+  return (
+    <main className="min-h-screen bg-zinc-50 px-4 py-8">
+      <a href="/dashboard" className="text-sm text-blue-700">
+        Continue to your dashboard
+      </a>
+    </main>
+  );
 }

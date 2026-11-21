@@ -1,21 +1,21 @@
-import { notFound, redirect } from "next/navigation";
+import { Suspense } from "react";
+import { notFound } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/app-shell";
 import { StatusBadge } from "@/components/status-badge";
 import { ReviewForm } from "./review-form";
 import { canTransitionTaskStatus } from "@/lib/task-rules";
+import { requireRole } from "@/lib/auth";
 import type { Review, Submission, Task } from "@/lib/types";
 
-export default async function ManagerTaskPage({
-  params,
-}: {
+type ManagerTaskPageProps = {
   params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
-  const supabase = await createSupabaseServerClient();
-  const { data: auth } = await supabase.auth.getUser();
-  if (!auth.user) redirect("/login");
+};
 
+async function ManagerTaskTitle({ params }: ManagerTaskPageProps) {
+  const { id } = await params;
+  const user = await requireRole("manager");
+  const supabase = await createSupabaseServerClient();
   const { data: taskData } = await supabase
     .from("tasks")
     .select("*")
@@ -23,7 +23,23 @@ export default async function ManagerTaskPage({
     .single();
   if (!taskData) notFound();
   const task = taskData as Task;
-  if (task.manager_id !== auth.user.id) notFound();
+  if (task.manager_id !== user.id) notFound();
+
+  return task.title;
+}
+
+async function ManagerTaskContent({ params }: ManagerTaskPageProps) {
+  const { id } = await params;
+  const user = await requireRole("manager");
+  const supabase = await createSupabaseServerClient();
+  const { data: taskData } = await supabase
+    .from("tasks")
+    .select("*")
+    .eq("id", id)
+    .single();
+  if (!taskData) notFound();
+  const task = taskData as Task;
+  if (task.manager_id !== user.id) notFound();
 
   const { data: submissionsData } = await supabase
     .from("submissions")
@@ -41,7 +57,7 @@ export default async function ManagerTaskPage({
   const latest = submissions.at(-1);
 
   return (
-    <AppShell title={task.title}>
+    <>
       <a href="/manager" className="text-sm text-blue-700">← Back to tasks</a>
       <section className="mt-4 rounded-lg border bg-white p-5">
         <div className="flex items-start justify-between gap-3">
@@ -110,6 +126,29 @@ export default async function ManagerTaskPage({
           </div>
         )}
       </section>
+    </>
+  );
+}
+
+export default function ManagerTaskPage({ params }: ManagerTaskPageProps) {
+  return (
+    <AppShell
+      title={
+        <Suspense fallback={<span className="block h-7 w-48 animate-pulse rounded bg-zinc-200" />}>
+          <ManagerTaskTitle params={params} />
+        </Suspense>
+      }
+    >
+      <Suspense
+        fallback={
+          <div className="space-y-4" aria-label="Loading task details">
+            <div className="h-28 animate-pulse rounded-lg bg-zinc-200" />
+            <div className="h-40 animate-pulse rounded-lg bg-zinc-200" />
+          </div>
+        }
+      >
+        <ManagerTaskContent params={params} />
+      </Suspense>
     </AppShell>
   );
 }

@@ -1,20 +1,27 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
-import type { Profile } from "@/lib/types";
+import { getUserRole, requireUser } from "@/lib/auth";
 
-export default async function DashboardPage() {
-  const supabase = await createSupabaseServerClient();
-  const { data: auth } = await supabase.auth.getUser();
-  if (!auth.user) redirect("/login");
+async function DashboardRedirect() {
+  const user = await requireUser();
+  const role = await getUserRole(user.id);
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", auth.user.id)
-    .single();
-
-  const role = (profile as Pick<Profile, "role"> | null)?.role;
   if (role === "manager") redirect("/manager");
   if (role === "member") redirect("/member");
   redirect("/login");
+  return null;
+}
+
+export default function DashboardPage() {
+  return (
+    <main className="min-h-screen bg-zinc-50 px-4 py-8">
+      <Suspense
+        fallback={
+          <div className="mx-auto h-16 max-w-5xl animate-pulse rounded-lg bg-zinc-200" />
+        }
+      >
+        <DashboardRedirect />
+      </Suspense>
+    </main>
+  );
 }

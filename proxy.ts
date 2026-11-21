@@ -6,7 +6,13 @@ export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const publicPaths = ["/login", "/signup"];
 
-  if (!user && !publicPaths.includes(pathname) && pathname !== "/") {
+  if (pathname === "/") {
+    const dashboardUrl = request.nextUrl.clone();
+    dashboardUrl.pathname = "/dashboard";
+    return NextResponse.redirect(dashboardUrl);
+  }
+
+  if (!user && !publicPaths.includes(pathname)) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/login";
     return NextResponse.redirect(loginUrl);
@@ -20,11 +26,11 @@ export async function proxy(request: NextRequest) {
 
   if (user && (pathname.startsWith("/manager") || pathname.startsWith("/member"))) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (!supabaseUrl || !anonKey) return response;
+    const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+    if (!supabaseUrl || !publishableKey) return response;
 
     const { createServerClient } = await import("@supabase/ssr");
-    const supabase = createServerClient(supabaseUrl, anonKey, {
+    const supabase = createServerClient(supabaseUrl, publishableKey, {
       cookies: {
         getAll: () => request.cookies.getAll(),
         setAll: () => undefined,

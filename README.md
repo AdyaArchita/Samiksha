@@ -37,7 +37,7 @@ The brief says, “The member submits a written response and can attach a file o
 Requirements: Node.js supported by the project dependencies, npm, and a Supabase project (hosted or local).
 
 1. Copy `.env.example` to `.env.local`.
-2. In Supabase, find the project URL and anon/publishable key under **Project Settings → API**. Put them in `.env.local` as `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+2. In Supabase, find the project URL and publishable key under **Project Settings → API**. Put them in `.env.local` as `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
 3. In the Supabase SQL Editor, apply the migrations in order:
    - `supabase/migrations/001_schema.sql` — profiles, tasks, submissions, reviews, constraints, and indexes.
    - `supabase/migrations/002_helpers_and_triggers.sql` — security-definer helpers, auth profile/email triggers, version assignment, validation, and status transitions.

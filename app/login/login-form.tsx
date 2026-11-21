@@ -1,9 +1,10 @@
 "use client";
 
 import { useActionState } from "react";
+import type { ReactNode } from "react";
 import { login, type AuthActionState } from "@/app/actions/auth";
 
-export function LoginForm({ initialError }: { initialError?: string }) {
+export function LoginForm({ errorSlot }: { errorSlot?: ReactNode }) {
   const [state, action, pending] = useActionState<AuthActionState, FormData>(
     login,
     undefined,
@@ -15,11 +16,11 @@ export function LoginForm({ initialError }: { initialError?: string }) {
         <h1 className="text-2xl font-semibold">Sign in</h1>
         <p className="mt-1 text-sm text-zinc-600">Access your assigned work or managed tasks.</p>
       </div>
-      {(state?.error ?? initialError) && (
+      {state?.error ? (
         <p role="alert" className="rounded-md bg-red-50 p-3 text-sm text-red-700">
-          {state?.error ?? initialError}
+          {state.error}
         </p>
-      )}
+      ) : errorSlot}
       <label className="block text-sm font-medium">
         Email
         <input name="email" type="email" required className="mt-1 w-full rounded-md border px-3 py-2" />
