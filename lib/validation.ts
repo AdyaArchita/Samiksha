@@ -42,14 +42,6 @@ export const submissionSchema = z.object({
       "Use a valid http:// or https:// link.",
     ),
   hasFile: z.boolean().optional(),
-}).superRefine((value, context) => {
-  if (!value.link && !value.hasFile) {
-    context.addIssue({
-      code: "custom",
-      path: ["link"],
-      message: "Add at least one file or link.",
-    });
-  }
 });
 
 export const submissionFileSchema = z.object({

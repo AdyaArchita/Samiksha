@@ -9,6 +9,7 @@ import {
 import { maxSubmissionFileBytes } from "../../lib/task-rules";
 
 const taskId = "18c85ff8-0465-4e84-9c46-fb60f98f4a17";
+const validFile = { size: 1024, type: "application/pdf" };
 
 describe("Zod input schemas", () => {
   it("requires a real due date and valid assignee when creating a task", () => {
@@ -23,23 +24,21 @@ describe("Zod input schemas", () => {
     expect(createTaskSchema.safeParse({ ...valid, dueDate: undefined }).success).toBe(false);
   });
 
-  it("accepts only safe links and non-empty response bodies", () => {
-    const submission = {
-      taskId,
-      body: "My response",
-      link: "https://example.test/document",
-    };
-    expect(submissionSchema.safeParse(submission).success).toBe(true);
-    const withoutArtifact = submissionSchema.safeParse({
-      taskId,
-      body: "My response",
-    });
-    expect(withoutArtifact.success).toBe(false);
-    if (!withoutArtifact.success) {
-      expect(withoutArtifact.error.issues[0]?.message).toBe(
-        "Add at least one file or link.",
-      );
-    }
+  it("accepts a text-only submission", () => {
+    expect(submissionSchema.safeParse({ taskId, body: "My response" }).success).toBe(true);
+  });
+
+  it("accepts a written response with a link", () => {
+    expect(
+      submissionSchema.safeParse({
+        taskId,
+        body: "My response",
+        link: "https://example.test/document",
+      }).success,
+    ).toBe(true);
+  });
+
+  it("accepts a written response with a file", () => {
     expect(
       submissionSchema.safeParse({
         taskId,
@@ -47,9 +46,46 @@ describe("Zod input schemas", () => {
         hasFile: true,
       }).success,
     ).toBe(true);
-    expect(submissionSchema.safeParse({ ...submission, link: "javascript:alert(1)" }).success).toBe(false);
-    expect(submissionSchema.safeParse({ ...submission, link: "http://" }).success).toBe(false);
-    expect(submissionSchema.safeParse({ ...submission, body: "  " }).success).toBe(false);
+    expect(submissionFileSchema.safeParse(validFile).success).toBe(true);
+  });
+
+  it("accepts a written response with both a file and a link", () => {
+    expect(
+      submissionSchema.safeParse({
+        taskId,
+        body: "My response",
+        link: "https://example.test/document",
+        hasFile: true,
+      }).success,
+    ).toBe(true);
+    expect(submissionFileSchema.safeParse(validFile).success).toBe(true);
+  });
+
+  it("rejects invalid links", () => {
+    const submission = { taskId, body: "My response" };
+    expect(
+      submissionSchema.safeParse({ ...submission, link: "javascript:alert(1)" }).success,
+    ).toBe(false);
+    expect(
+      submissionSchema.safeParse({ ...submission, link: "http://" }).success,
+    ).toBe(false);
+  });
+
+  it("rejects an empty written response even when a file or link is present", () => {
+    expect(
+      submissionSchema.safeParse({
+        taskId,
+        body: "  ",
+        link: "https://example.test/document",
+      }).success,
+    ).toBe(false);
+    expect(
+      submissionSchema.safeParse({
+        taskId,
+        body: "  ",
+        hasFile: true,
+      }).success,
+    ).toBe(false);
   });
 
   it("requires feedback for a changes-requested review", () => {

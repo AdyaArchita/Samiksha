@@ -29,7 +29,7 @@ export function SubmissionForm({
       <form action={action} className="space-y-4">
         <input type="hidden" name="taskId" value={taskId} />
         <p className="text-sm text-zinc-600">
-          Include at least one file or link with your written response.
+          Your written response is required. A file and link are optional; you may include either, both, or neither.
         </p>
         <label className="block text-sm font-medium">
           Written response

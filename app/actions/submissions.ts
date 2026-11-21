@@ -20,7 +20,7 @@ export async function submitWork(
     hasFile: file instanceof File && file.size > 0,
   });
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Add a response and a file or link." };
+    return { error: parsed.error.issues[0]?.message ?? "Add a written response." };
   }
 
   const supabase = await createSupabaseServerClient();
