@@ -1,7 +1,12 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { LoginForm } from "./login-form";
 import { getLoginErrorMessage } from "@/lib/auth-errors";
 import { Toast } from "@/components/ui/toast";
+
+export const metadata: Metadata = {
+  title: "Login",
+};
 
 type LoginPageProps = {
   searchParams: Promise<{ error?: string | string[] }>;

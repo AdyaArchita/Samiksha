@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import { connection } from "next/server";
 import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -20,6 +21,10 @@ import {
   sortTaskList,
 } from "@/lib/task-presentation";
 import type { Task } from "@/lib/types";
+
+export const metadata: Metadata = {
+  title: "Member dashboard",
+};
 
 type MemberPageProps = {
   searchParams: Promise<{

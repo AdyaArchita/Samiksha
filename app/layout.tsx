@@ -9,8 +9,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Samiksha",
-  description: "Task submission and approval system",
+  title: {
+    default: "Skylent Tasks",
+    template: "%s | Skylent Tasks",
+  },
+  description: "A simple workspace for task submissions and manager reviews.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import { connection } from "next/server";
 import { notFound } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -14,6 +15,10 @@ import { canTransitionTaskStatus } from "@/lib/task-rules";
 import { requireRole } from "@/lib/auth";
 import { ReviewForm } from "./review-form";
 import type { Review, Submission, Task } from "@/lib/types";
+
+export const metadata: Metadata = {
+  title: "Task review",
+};
 
 type ManagerTaskPageProps = {
   params: Promise<{ id: string }>;
