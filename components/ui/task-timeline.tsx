@@ -1,5 +1,15 @@
 import type { TaskHistoryEvent } from "@/lib/task-presentation";
+import type { TaskStatus } from "@/lib/types";
 import { EmptyState } from "./empty-state";
+import { StatusBadge } from "./status-badge";
+
+const eventStatuses: Record<TaskHistoryEvent["kind"], TaskStatus> = {
+  assigned: "assigned",
+  submitted: "submitted",
+  resubmitted: "submitted",
+  changes_requested: "changes_requested",
+  approved: "approved",
+};
 
 export function TaskTimeline({
   events,
@@ -9,8 +19,8 @@ export function TaskTimeline({
   error?: boolean;
 }) {
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h2 className="text-lg font-semibold text-slate-900">Activity history</h2>
+    <section className="rounded-xl border border-border bg-surface p-5 shadow-sm">
+      <h2 className="text-lg font-semibold text-foreground">Activity history</h2>
       {error ? (
         <div className="mt-4">
           <EmptyState title="History could not be loaded" variant="error">
@@ -18,55 +28,40 @@ export function TaskTimeline({
           </EmptyState>
         </div>
       ) : events.length === 0 ? (
-        <p className="mt-4 text-sm text-slate-500">No activity has been recorded yet.</p>
+        <p className="mt-4 text-sm text-muted">No activity has been recorded yet.</p>
       ) : (
-        <ol className="mt-5">
-          {events.map((event, index) => (
-            <li key={event.id} className="relative flex gap-3 pb-7 last:pb-0">
-              {index < events.length - 1 && (
-                <span
-                  aria-hidden="true"
-                  className="absolute left-[0.4375rem] top-3 h-full w-px bg-slate-200"
-                />
-              )}
-              <span
-                aria-hidden="true"
-                className={`relative mt-1 size-4 shrink-0 rounded-full border-2 border-white ring-1 ${
-                  event.kind === "approved"
-                    ? "bg-emerald-500 ring-emerald-600"
-                    : event.kind === "changes_requested"
-                      ? "bg-rose-500 ring-rose-600"
-                      : event.kind === "submitted" || event.kind === "resubmitted"
-                        ? "bg-amber-500 ring-amber-600"
-                        : "bg-sky-500 ring-sky-600"
-                }`}
-              />
-              <div className="min-w-0 flex-1">
+        <ol className="mt-5 space-y-6 border-l border-border pl-4">
+          {events.map((event) => (
+            <li key={event.id} className="min-w-0">
+              <div>
                 <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                  <h3 className="font-semibold text-slate-900">{event.title}</h3>
+                  <StatusBadge
+                    status={eventStatuses[event.kind]}
+                    label={event.kind === "resubmitted" ? "Resubmitted" : undefined}
+                  />
                   <time
                     dateTime={event.createdAt}
-                    className="text-xs text-slate-500"
+                    className="tabular text-xs text-muted"
                   >
                     {new Date(event.createdAt).toLocaleString()}
                   </time>
                 </div>
-                <p className="mt-1 text-sm text-slate-600">{event.actor}</p>
+                <p className="mt-2 text-sm text-muted">{event.actor}</p>
                 {event.description && (
-                  <p className="mt-1 text-sm text-slate-600">{event.description}</p>
+                  <p className="mt-1 text-sm text-muted">{event.description}</p>
                 )}
                 {event.feedback && (
-                  <div className="mt-3 rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-900">
+                  <div className="mt-3 rounded-lg border border-status-changes-ring bg-status-changes-bg p-3 text-sm text-status-changes-fg">
                     <p className="font-semibold">Feedback</p>
                     <p className="mt-1 whitespace-pre-wrap">{event.feedback}</p>
                   </div>
                 )}
                 {event.submission && (
-                  <div className="mt-3 rounded-lg bg-slate-50 p-3">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  <div className="mt-3 rounded-lg bg-background p-3">
+                    <p className="tabular text-xs font-semibold uppercase tracking-wide text-muted">
                       Version {event.submission.version}
                     </p>
-                    <p className="mt-2 whitespace-pre-wrap text-sm text-slate-800">
+                    <p className="mt-2 whitespace-pre-wrap text-sm text-foreground">
                       {event.submission.body}
                     </p>
                     {event.submission.link && (
@@ -74,7 +69,7 @@ export function TaskTimeline({
                         href={event.submission.link}
                         target="_blank"
                         rel="noreferrer"
-                        className="mt-2 block break-all text-sm font-medium text-indigo-700 underline decoration-indigo-300 underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                        className="mt-2 block break-all text-sm font-medium text-foreground underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                       >
                         Open submitted link
                       </a>
@@ -84,7 +79,7 @@ export function TaskTimeline({
                         href={`/api/files/signed?path=${encodeURIComponent(event.submission.file_path)}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="mt-2 block text-sm font-medium text-indigo-700 underline decoration-indigo-300 underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                        className="mt-2 block text-sm font-medium text-foreground underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                       >
                         Download attachment
                       </a>

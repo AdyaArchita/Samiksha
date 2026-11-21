@@ -17,7 +17,7 @@ async function LoginErrorSlot({ searchParams }: LoginPageProps) {
 
 export default function LoginPage({ searchParams }: LoginPageProps) {
   return (
-    <main className="mx-auto flex min-h-screen max-w-md items-center px-6">
+    <main className="mx-auto flex min-h-screen max-w-md items-center bg-background px-6">
       <LoginForm
         errorSlot={
           <Suspense fallback={null}>

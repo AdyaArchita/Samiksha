@@ -49,9 +49,9 @@ async function MemberTaskList({ searchParams }: MemberPageProps) {
   return (
     <div className="space-y-7">
       <section>
-        <p className="text-sm font-semibold text-indigo-700">Member workspace</p>
-        <h2 className="mt-1 text-xl font-bold text-slate-900">Welcome back, {displayName}</h2>
-        <p className="mt-1 text-sm text-slate-600">Your work and review feedback, all in one place.</p>
+        <p className="text-xs font-medium text-muted">Member workspace</p>
+        <h2 className="mt-1 text-lg font-semibold text-foreground">Welcome back, {displayName}</h2>
+        <p className="mt-1 text-sm text-muted">Your work and review feedback, all in one place.</p>
       </section>
 
       {error ? (
@@ -69,19 +69,19 @@ async function MemberTaskList({ searchParams }: MemberPageProps) {
           <section aria-labelledby="member-tasks-heading">
             <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
               <div>
-                <h2 id="member-tasks-heading" className="text-lg font-bold text-slate-900">
+                <h2 id="member-tasks-heading" className="text-lg font-semibold text-foreground">
                   Your assignments
                 </h2>
-                <p className="mt-1 text-sm text-slate-600">
+                <p className="mt-1 text-sm text-muted">
                   Tasks needing your attention are shown first.
                 </p>
               </div>
-              <p className="text-sm text-slate-500">
+              <p className="tabular text-xs text-muted">
                 {visibleTasks.length} {visibleTasks.length === 1 ? "task" : "tasks"}
               </p>
             </div>
             {tasks.length === 0 ? (
-              <EmptyState title="No assignments yet">
+              <EmptyState title="No tasks assigned yet">
                 New tasks assigned to you will appear here.
               </EmptyState>
             ) : visibleTasks.length === 0 ? (

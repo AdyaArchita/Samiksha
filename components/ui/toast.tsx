@@ -3,9 +3,9 @@ import type { ReactNode } from "react";
 type ToastVariant = "success" | "error" | "info";
 
 const styles: Record<ToastVariant, string> = {
-  success: "border-emerald-200 bg-emerald-50 text-emerald-900",
-  error: "border-rose-200 bg-rose-50 text-rose-900",
-  info: "border-indigo-200 bg-indigo-50 text-indigo-900",
+  success: "border-status-approved-ring bg-status-approved-bg text-status-approved-fg",
+  error: "border-danger bg-surface text-danger",
+  info: "border-border bg-surface text-foreground",
 };
 
 export function Toast({

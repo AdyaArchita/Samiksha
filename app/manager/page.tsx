@@ -65,12 +65,12 @@ async function ManagerDashboard({ searchParams }: ManagerPageProps) {
     <div className="space-y-7">
       <section className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="text-sm font-semibold text-indigo-700">Manager workspace</p>
-          <h2 className="mt-1 text-xl font-bold text-slate-900">Welcome back, {displayName}</h2>
-          <p className="mt-1 text-sm text-slate-600">Create assignments and keep reviews moving.</p>
+          <p className="text-xs font-medium text-muted">Manager workspace</p>
+          <h2 className="mt-1 text-lg font-semibold text-foreground">Welcome back, {displayName}</h2>
+          <p className="mt-1 text-sm text-muted">Create assignments and keep reviews moving.</p>
         </div>
         <details className="group relative">
-          <summary className="inline-flex min-h-10 cursor-pointer list-none items-center justify-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2">
+          <summary className="inline-flex min-h-10 cursor-pointer list-none items-center justify-center rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">
             <span aria-hidden="true" className="mr-2 text-lg leading-none">+</span>
             New task
           </summary>
@@ -101,24 +101,28 @@ async function ManagerDashboard({ searchParams }: ManagerPageProps) {
           <section aria-labelledby="manager-tasks-heading">
             <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
               <div>
-                <h2 id="manager-tasks-heading" className="text-lg font-bold text-slate-900">
+                <h2 id="manager-tasks-heading" className="text-lg font-semibold text-foreground">
                   Your tasks
                 </h2>
-                <p className="mt-1 text-sm text-slate-600">
+                <p className="mt-1 text-sm text-muted">
                   Submitted work is prioritized for review.
                 </p>
               </div>
-              <p className="text-sm text-slate-500">
+              <p className="tabular text-xs text-muted">
                 {visibleTasks.length} {visibleTasks.length === 1 ? "task" : "tasks"}
               </p>
             </div>
             {tasks.length === 0 ? (
-              <EmptyState title="No tasks yet">
+              <EmptyState title="No tasks created yet">
                 Create a task above to assign work to a member.
               </EmptyState>
             ) : visibleTasks.length === 0 ? (
-              <EmptyState title="No tasks in this status">
-                Choose another status filter to see more tasks.
+              <EmptyState
+                title={filter === "submitted" ? "Nothing to review" : "No tasks in this status"}
+              >
+                {filter === "submitted"
+                  ? "Submitted work will appear here when a member is ready for review."
+                  : "Choose another status filter to see more tasks."}
               </EmptyState>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -137,9 +141,9 @@ async function ManagerDashboard({ searchParams }: ManagerPageProps) {
         </>
       )}
       {filter !== "all" && (
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-muted">
           Need a quick overview?{" "}
-          <Link href="/manager" className="font-medium text-indigo-700 underline-offset-2 hover:underline">
+          <Link href="/manager" className="rounded font-medium text-foreground underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">
             View all tasks
           </Link>
         </p>

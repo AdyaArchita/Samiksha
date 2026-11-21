@@ -30,7 +30,7 @@ export function ReviewForm({
         <Button
           name="decision"
           value="approved"
-          variant="success"
+          variant="primary"
           pendingLabel="Approving..."
           onClick={(event) => {
             if (!window.confirm("Approve this submission?")) event.preventDefault();
@@ -41,7 +41,7 @@ export function ReviewForm({
         {!requestingChanges && (
           <Button
             type="button"
-            variant="danger"
+            variant="changes"
             onClick={() => setRequestingChanges(true)}
           >
             Request changes
@@ -49,22 +49,22 @@ export function ReviewForm({
         )}
       </div>
       {requestingChanges && (
-        <div className="space-y-3 rounded-lg border border-rose-200 bg-rose-50 p-4">
-          <label className="block text-sm font-semibold text-rose-950">
+        <div className="space-y-3 rounded-lg border border-status-changes-ring bg-status-changes-bg p-4">
+          <label className="block text-sm font-semibold text-status-changes-fg">
             Feedback for the member (required)
             <textarea
               name="feedback"
               required
               rows={3}
               maxLength={5000}
-              className="mt-1.5 min-h-24 w-full rounded-lg border border-rose-200 bg-white px-3 py-2 text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
+              className="mt-1.5 min-h-24 w-full rounded-lg border border-status-changes-ring bg-surface px-3 py-2 text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-changes-fg"
             />
           </label>
           <div className="flex flex-wrap gap-2">
             <Button
               name="decision"
               value="changes_requested"
-              variant="danger"
+              variant="changes"
               pendingLabel="Sending feedback..."
               onClick={(event) => {
                 if (!window.confirm("Send this feedback and request changes?")) {

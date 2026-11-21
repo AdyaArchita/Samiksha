@@ -61,6 +61,8 @@ async function ManagerTaskContent({ params }: ManagerTaskPageProps) {
 
   const task = taskData as Task;
   if (task.manager_id !== user.id) notFound();
+  const today = new Date().toISOString().slice(0, 10);
+  const overdue = task.status !== "approved" && task.due_date < today;
 
   const [submissionsResult, reviewsResult] = await Promise.all([
     supabase
@@ -94,25 +96,26 @@ async function ManagerTaskContent({ params }: ManagerTaskPageProps) {
       historyError={historyError}
       actions={
         canReview && latest && !historyError ? (
-          <div className="sticky bottom-3 z-20 rounded-xl border border-slate-200 bg-white/95 p-3 shadow-lg backdrop-blur sm:p-4">
-            <p className="mb-2 px-1 text-sm font-semibold text-slate-700">Review this submission</p>
+          <div className="sticky bottom-3 z-20 rounded-xl border border-border bg-surface/95 p-3 shadow-lg backdrop-blur sm:p-4">
+            <p className="mb-2 px-1 text-sm font-semibold text-foreground">Review this submission</p>
             <ReviewForm taskId={task.id} submissionId={latest.id} />
           </div>
         ) : null
       }
     >
-      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <section className="rounded-xl border border-border bg-surface p-5 shadow-sm sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h2 className="text-lg font-semibold text-slate-900">Instructions</h2>
-            <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-700">
+            <h2 className="text-lg font-semibold text-foreground">Instructions</h2>
+            <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-foreground">
               {task.instructions}
             </p>
           </div>
           <StatusBadge status={task.status} />
         </div>
-        <p className="mt-5 border-t border-slate-100 pt-4 text-sm text-slate-600">
-          Due date: <span className="font-semibold text-slate-800">{task.due_date}</span>
+        <p className="mt-5 border-t border-border pt-4 text-sm text-muted">
+          Due date: <span className="tabular font-semibold text-foreground">{task.due_date}</span>
+          {overdue && <span className="ml-2 font-medium text-danger">Overdue</span>}
         </p>
       </section>
       {historyError ? (
@@ -135,7 +138,7 @@ export default function ManagerTaskPage({ params }: ManagerTaskPageProps) {
     <AppShell
       role="manager"
       title={
-        <Suspense fallback={<span className="inline-block h-7 w-48 animate-pulse rounded bg-slate-200" />}>
+        <Suspense fallback={<span className="inline-block h-7 w-48 animate-pulse rounded bg-border" />}>
           <ManagerTaskTitle params={params} />
         </Suspense>
       }

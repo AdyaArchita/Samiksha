@@ -17,7 +17,7 @@ async function DashboardRedirect() {
 
 export default function DashboardPage() {
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-8">
+    <main className="min-h-screen bg-background px-4 py-8">
       <Suspense fallback={<DashboardSkeleton />}>
         <DashboardRedirect />
       </Suspense>

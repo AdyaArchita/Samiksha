@@ -61,6 +61,8 @@ async function MemberTaskContent({ params }: MemberTaskPageProps) {
 
   const task = taskData as Task;
   if (task.assignee_id !== user.id) notFound();
+  const today = new Date().toISOString().slice(0, 10);
+  const overdue = task.status !== "approved" && task.due_date < today;
 
   const [submissionsResult, reviewsResult] = await Promise.all([
     supabase
@@ -97,16 +99,17 @@ async function MemberTaskContent({ params }: MemberTaskPageProps) {
       history={historyError ? [] : buildTaskHistory(task, submissions, reviews, "member")}
       historyError={historyError}
     >
-      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <section className="rounded-xl border border-border bg-surface p-5 shadow-sm sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <h2 className="text-lg font-semibold text-slate-900">Instructions</h2>
+          <h2 className="text-lg font-semibold text-foreground">Instructions</h2>
           <StatusBadge status={task.status} />
         </div>
-        <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-700">
+        <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-foreground">
           {task.instructions}
         </p>
-        <p className="mt-5 border-t border-slate-100 pt-4 text-sm text-slate-600">
-          Due date: <span className="font-semibold text-slate-800">{task.due_date}</span>
+        <p className="mt-5 border-t border-border pt-4 text-sm text-muted">
+          Due date: <span className="tabular font-semibold text-foreground">{task.due_date}</span>
+          {overdue && <span className="ml-2 font-medium text-danger">Overdue</span>}
         </p>
       </section>
       {historyError ? (
@@ -123,12 +126,12 @@ async function MemberTaskContent({ params }: MemberTaskPageProps) {
         </EmptyState>
       )}
       {task.status === "submitted" && (
-        <p className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm font-medium text-amber-900">
+        <p className="rounded-xl border border-status-submitted-ring bg-status-submitted-bg p-4 text-sm font-medium text-status-submitted-fg">
           Your work is awaiting the manager&apos;s review.
         </p>
       )}
       {task.status === "approved" && (
-        <p className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-900">
+        <p className="rounded-xl border border-status-approved-ring bg-status-approved-bg p-4 text-sm font-medium text-status-approved-fg">
           This task is approved and can no longer be changed.
         </p>
       )}
@@ -141,7 +144,7 @@ export default function MemberTaskPage({ params }: MemberTaskPageProps) {
     <AppShell
       role="member"
       title={
-        <Suspense fallback={<span className="inline-block h-7 w-48 animate-pulse rounded bg-slate-200" />}>
+        <Suspense fallback={<span className="inline-block h-7 w-48 animate-pulse rounded bg-border" />}>
           <MemberTaskTitle params={params} />
         </Suspense>
       }
