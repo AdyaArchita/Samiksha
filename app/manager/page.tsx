@@ -1,70 +1,158 @@
+import Link from "next/link";
 import { Suspense } from "react";
+import { connection } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { logDatabaseError } from "@/lib/errors";
 import { AppShell } from "@/components/app-shell";
-import { StatusBadge } from "@/components/status-badge";
 import { CreateTaskForm } from "./create-task-form";
+import { EmptyState } from "@/components/ui/empty-state";
+import { DashboardSkeleton } from "@/components/ui/skeletons";
+import { TaskCard } from "@/components/ui/task-card";
+import {
+  TaskFilterTabs,
+  TaskStatusSummary,
+} from "@/components/ui/task-status-summary";
 import { requireRole } from "@/lib/auth";
+import {
+  countTaskStatuses,
+  filterTasks,
+  parseTaskFilter,
+  sortTasks,
+} from "@/lib/task-presentation";
 import type { Profile, Task } from "@/lib/types";
 
-async function ManagerDashboard() {
+type ManagerPageProps = {
+  searchParams: Promise<{ status?: string | string[] }>;
+};
+
+async function ManagerDashboard({ searchParams }: ManagerPageProps) {
+  await connection();
+  const { status } = await searchParams;
+  const filter = parseTaskFilter(status);
   const user = await requireRole("manager");
   const supabase = await createSupabaseServerClient();
 
-  const { data: tasksData } = await supabase
-    .from("tasks")
-    .select("*")
-    .eq("manager_id", user.id)
-    .order("created_at", { ascending: false });
-  const { data: membersData } = await supabase
-    .from("profiles")
-    .select("id, email, full_name, role, created_at")
-    .eq("role", "member")
-    .order("full_name");
+  const [tasksResult, membersResult] = await Promise.all([
+    supabase
+      .from("tasks")
+      .select("*")
+      .eq("manager_id", user.id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("profiles")
+      .select("id, email, full_name, role, created_at")
+      .eq("role", "member")
+      .order("full_name"),
+  ]);
+  if (tasksResult.error) logDatabaseError(tasksResult.error, tasksResult.error.code);
+  if (membersResult.error) logDatabaseError(membersResult.error, membersResult.error.code);
 
-  const tasks = (tasksData ?? []) as Task[];
-  const members = (membersData ?? []) as Profile[];
+  const tasks = (tasksResult.data ?? []) as Task[];
+  const members = (membersResult.data ?? []) as Profile[];
+  const displayName =
+    typeof user.user_metadata?.full_name === "string"
+    && user.user_metadata.full_name.trim()
+      ? user.user_metadata.full_name
+      : "there";
+  const today = new Date().toISOString().slice(0, 10);
+  const memberNames = new Map(
+    members.map((member) => [member.id, member.full_name || member.email]),
+  );
+  const counts = countTaskStatuses(tasks);
+  const visibleTasks = filterTasks(sortTasks(tasks, "manager"), filter);
 
   return (
-    <>
-      <CreateTaskForm members={members} />
-      <section className="mt-8">
-        <h2 className="mb-3 text-lg font-semibold">Tasks you created</h2>
-        {tasks.length === 0 ? (
-          <p className="rounded-lg border bg-white p-6 text-sm text-zinc-600">No tasks have been created yet.</p>
-        ) : (
-          <div className="grid gap-3">
-            {tasks.map((task) => (
-              <a key={task.id} href={`/manager/tasks/${task.id}`} className="rounded-lg border bg-white p-4 hover:border-zinc-400">
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <div>
-                    <h3 className="font-medium">{task.title}</h3>
-                    <p className="mt-1 text-sm text-zinc-600">
-                      {task.due_date ? `Due ${task.due_date}` : "No due date"}
-                    </p>
-                  </div>
-                  <StatusBadge status={task.status} />
-                </div>
-              </a>
-            ))}
+    <div className="space-y-7">
+      <section className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div>
+          <p className="text-sm font-semibold text-indigo-700">Manager workspace</p>
+          <h2 className="mt-1 text-xl font-bold text-slate-900">Welcome back, {displayName}</h2>
+          <p className="mt-1 text-sm text-slate-600">Create assignments and keep reviews moving.</p>
+        </div>
+        <details className="group relative">
+          <summary className="inline-flex min-h-10 cursor-pointer list-none items-center justify-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2">
+            <span aria-hidden="true" className="mr-2 text-lg leading-none">+</span>
+            New task
+          </summary>
+          <div className="mt-3 sm:absolute sm:right-0 sm:z-20 sm:w-[min(42rem,calc(100vw-2rem))]">
+            {membersResult.error ? (
+              <EmptyState title="Members could not be loaded" variant="error">
+                Refresh the page to try again before creating an assignment.
+              </EmptyState>
+            ) : (
+              <CreateTaskForm members={members} />
+            )}
           </div>
-        )}
+        </details>
       </section>
-    </>
+
+      {tasksResult.error ? (
+        <EmptyState title="Tasks could not be loaded" variant="error">
+          Refresh the page to try again.
+        </EmptyState>
+      ) : (
+        <>
+          <TaskStatusSummary
+            pathname="/manager"
+            counts={counts}
+            selected={filter}
+          />
+          <TaskFilterTabs pathname="/manager" selected={filter} />
+          <section aria-labelledby="manager-tasks-heading">
+            <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
+              <div>
+                <h2 id="manager-tasks-heading" className="text-lg font-bold text-slate-900">
+                  Your tasks
+                </h2>
+                <p className="mt-1 text-sm text-slate-600">
+                  Submitted work is prioritized for review.
+                </p>
+              </div>
+              <p className="text-sm text-slate-500">
+                {visibleTasks.length} {visibleTasks.length === 1 ? "task" : "tasks"}
+              </p>
+            </div>
+            {tasks.length === 0 ? (
+              <EmptyState title="No tasks yet">
+                Create a task above to assign work to a member.
+              </EmptyState>
+            ) : visibleTasks.length === 0 ? (
+              <EmptyState title="No tasks in this status">
+                Choose another status filter to see more tasks.
+              </EmptyState>
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {visibleTasks.map((task) => (
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                    href={`/manager/tasks/${task.id}`}
+                    today={today}
+                    assigneeName={memberNames.get(task.assignee_id)}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+        </>
+      )}
+      {filter !== "all" && (
+        <p className="text-sm text-slate-500">
+          Need a quick overview?{" "}
+          <Link href="/manager" className="font-medium text-indigo-700 underline-offset-2 hover:underline">
+            View all tasks
+          </Link>
+        </p>
+      )}
+    </div>
   );
 }
 
-export default function ManagerPage() {
+export default function ManagerPage(props: ManagerPageProps) {
   return (
-    <AppShell title="Manager dashboard">
-      <Suspense
-        fallback={
-          <div className="space-y-4" aria-label="Loading manager dashboard">
-            <div className="h-24 animate-pulse rounded-lg bg-zinc-200" />
-            <div className="h-40 animate-pulse rounded-lg bg-zinc-200" />
-          </div>
-        }
-      >
-        <ManagerDashboard />
+    <AppShell title="Manager dashboard" role="manager">
+      <Suspense fallback={<DashboardSkeleton />}>
+        <ManagerDashboard searchParams={props.searchParams} />
       </Suspense>
     </AppShell>
   );

@@ -1,3 +1,9 @@
+import { TaskDetailSkeleton } from "@/components/ui/skeletons";
+
 export default function ManagerTaskLoading() {
-  return <p className="p-6 text-sm text-zinc-600">Loading task details...</p>;
+  return (
+    <main className="min-h-screen bg-slate-50 p-4 sm:p-8">
+      <TaskDetailSkeleton />
+    </main>
+  );
 }
