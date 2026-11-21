@@ -57,6 +57,12 @@ async function ManagerDashboard({ searchParams }: ManagerPageProps) {
   );
   const counts = countTaskStatuses(tasks);
   const visibleTasks = filterTasks(sortTasks(tasks, "manager"), filter);
+  const reviewTasks = tasks.filter((task) => task.status === "submitted");
+  const mainTasks =
+    filter === "all"
+      ? visibleTasks.filter((task) => task.status !== "submitted")
+      : visibleTasks;
+  const showReviewBlock = filter === "all" && reviewTasks.length > 0;
 
   return (
     <div className="space-y-7">
@@ -93,6 +99,31 @@ async function ManagerDashboard({ searchParams }: ManagerPageProps) {
             counts={counts}
             selected={filter}
           />
+          {showReviewBlock && (
+            <section aria-labelledby="needs-review-heading">
+              <h2
+                id="needs-review-heading"
+                className="mb-4 text-lg font-semibold text-foreground"
+              >
+                Needs your review
+              </h2>
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {reviewTasks.map((task) => (
+                  <div key={task.id} className="space-y-2">
+                    <p className="text-xs font-semibold text-status-submitted-fg">
+                      Awaiting review
+                    </p>
+                    <TaskCard
+                      task={task}
+                      href={`/manager/tasks/${task.id}`}
+                      today={today}
+                      assigneeName={memberNames.get(task.assignee_id)}
+                    />
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
           <section aria-labelledby="manager-tasks-heading">
             <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
               <div>
@@ -105,7 +136,7 @@ async function ManagerDashboard({ searchParams }: ManagerPageProps) {
               </div>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                 <p className="tabular text-xs text-muted">
-                  {visibleTasks.length} {visibleTasks.length === 1 ? "task" : "tasks"}
+                  {mainTasks.length} {mainTasks.length === 1 ? "task" : "tasks"}
                 </p>
                 {filter !== "all" && (
                   <Link
@@ -129,9 +160,13 @@ async function ManagerDashboard({ searchParams }: ManagerPageProps) {
                   ? "Submitted work will appear here when a member is ready for review."
                   : "Choose another status filter to see more tasks."}
               </EmptyState>
+            ) : mainTasks.length === 0 ? (
+              <EmptyState title="All tasks are awaiting review">
+                Submitted tasks are listed in Needs your review above.
+              </EmptyState>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                {visibleTasks.map((task) => (
+                {mainTasks.map((task) => (
                   <TaskCard
                     key={task.id}
                     task={task}
