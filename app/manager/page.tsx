@@ -8,24 +8,34 @@ import { CreateTaskForm } from "./create-task-form";
 import { EmptyState } from "@/components/ui/empty-state";
 import { DashboardSkeleton } from "@/components/ui/skeletons";
 import { TaskCard } from "@/components/ui/task-card";
+import { TaskListControls } from "@/components/ui/task-list-controls";
 import { TaskStatusSummary } from "@/components/ui/task-status-summary";
 import { requireRole } from "@/lib/auth";
 import {
+  buildTaskListHref,
   countTaskStatuses,
   filterTasks,
+  filterTasksByQuery,
   parseTaskFilter,
-  sortTasks,
+  parseTaskSort,
+  sortTaskList,
 } from "@/lib/task-presentation";
 import type { Profile, Task } from "@/lib/types";
 
 type ManagerPageProps = {
-  searchParams: Promise<{ status?: string | string[] }>;
+  searchParams: Promise<{
+    status?: string | string[];
+    q?: string | string[];
+    sort?: string | string[];
+  }>;
 };
 
 async function ManagerDashboard({ searchParams }: ManagerPageProps) {
   await connection();
-  const { status } = await searchParams;
+  const { status, q, sort: sortValue } = await searchParams;
   const filter = parseTaskFilter(status);
+  const query = (Array.isArray(q) ? q[0] ?? "" : q ?? "").trim();
+  const sort = parseTaskSort(sortValue);
   const user = await requireRole("manager");
   const supabase = await createSupabaseServerClient();
 
@@ -53,9 +63,19 @@ async function ManagerDashboard({ searchParams }: ManagerPageProps) {
       : "there";
   const today = now.slice(0, 10);
   const membersById = new Map(members.map((member) => [member.id, member]));
+  const assigneeTerms = new Map(
+    members.map((member) => [
+      member.id,
+      `${member.full_name} ${member.email}`,
+    ]),
+  );
   const counts = countTaskStatuses(tasks);
-  const visibleTasks = filterTasks(sortTasks(tasks, "manager"), filter);
-  const reviewTasks = tasks.filter((task) => task.status === "submitted");
+  const visibleTasks = sortTaskList(
+    filterTasksByQuery(filterTasks(tasks, filter), query, assigneeTerms),
+    sort,
+    "manager",
+  );
+  const reviewTasks = visibleTasks.filter((task) => task.status === "submitted");
   const mainTasks =
     filter === "all"
       ? visibleTasks.filter((task) => task.status !== "submitted")
@@ -96,6 +116,14 @@ async function ManagerDashboard({ searchParams }: ManagerPageProps) {
             pathname="/manager"
             counts={counts}
             selected={filter}
+            query={query}
+            sort={sort}
+          />
+          <TaskListControls
+            pathname="/manager"
+            query={query}
+            sort={sort}
+            status={filter}
           />
           {showReviewBlock && (
             <section aria-labelledby="needs-review-heading">
@@ -140,7 +168,7 @@ async function ManagerDashboard({ searchParams }: ManagerPageProps) {
                 </p>
                 {filter !== "all" && (
                   <Link
-                    href="/manager"
+                    href={buildTaskListHref("/manager", { query, sort })}
                     className="rounded text-sm text-accent hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
                   >
                     Show all tasks
@@ -153,12 +181,14 @@ async function ManagerDashboard({ searchParams }: ManagerPageProps) {
                 Create a task above to assign work to a member.
               </EmptyState>
             ) : visibleTasks.length === 0 ? (
-              <EmptyState
-                title={filter === "submitted" ? "Nothing to review" : "No tasks in this status"}
-              >
-                {filter === "submitted"
-                  ? "Submitted work will appear here when a member is ready for review."
-                  : "Choose another status filter to see more tasks."}
+              <EmptyState title="No tasks match your search">
+                Try changing your search or clearing the status filter.{" "}
+                <Link
+                  href={buildTaskListHref("/manager", { sort })}
+                  className="font-medium text-accent underline-offset-2 hover:underline"
+                >
+                  Clear search
+                </Link>
               </EmptyState>
             ) : mainTasks.length === 0 ? (
               <EmptyState title="All tasks are awaiting review">

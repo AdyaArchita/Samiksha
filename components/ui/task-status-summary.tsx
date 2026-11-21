@@ -1,6 +1,10 @@
 import Link from "next/link";
 import type { TaskStatus } from "@/lib/types";
-import type { TaskFilter } from "@/lib/task-presentation";
+import {
+  buildTaskListHref,
+  type TaskFilter,
+  type TaskSort,
+} from "@/lib/task-presentation";
 import { StatusBadge } from "./status-badge";
 
 const statuses: TaskStatus[] = [
@@ -14,15 +18,19 @@ export function TaskStatusSummary({
   pathname,
   counts,
   selected,
+  query,
+  sort,
 }: {
   pathname: string;
   counts: Record<TaskStatus, number>;
   selected: TaskFilter;
+  query: string;
+  sort: TaskSort;
 }) {
   return (
     <section aria-label="Task counts by status" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       {statuses.map((status) => {
-        const href = `${pathname}?status=${status}`;
+        const href = buildTaskListHref(pathname, { status, query, sort });
         const active = selected === status;
         return (
           <Link

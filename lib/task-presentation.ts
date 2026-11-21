@@ -1,6 +1,7 @@
 import type { Review, Submission, Task, TaskStatus, UserRole } from "@/lib/types";
 
 export type TaskFilter = "all" | TaskStatus;
+export type TaskSort = "due_asc" | "due_desc" | "updated_desc";
 
 export type TaskHistoryEvent = {
   id: string;
@@ -38,6 +39,50 @@ export function parseTaskFilter(value?: string | string[]): TaskFilter {
     return candidate;
   }
   return "all";
+}
+
+export function parseTaskSort(value?: string | string[]): TaskSort {
+  const candidate = Array.isArray(value) ? value[0] : value;
+  return candidate === "due_desc" || candidate === "updated_desc"
+    ? candidate
+    : "due_asc";
+}
+
+export function buildTaskListHref(
+  pathname: string,
+  {
+    status,
+    query,
+    sort,
+  }: {
+    status?: TaskFilter;
+    query?: string;
+    sort?: TaskSort;
+  },
+): string {
+  const params = new URLSearchParams();
+  if (status && status !== "all") params.set("status", status);
+  const normalizedQuery = query?.trim();
+  if (normalizedQuery) params.set("q", normalizedQuery);
+  if (sort && sort !== "due_asc") params.set("sort", sort);
+  const search = params.toString();
+  return search ? `${pathname}?${search}` : pathname;
+}
+
+export function filterTasksByQuery(
+  tasks: Task[],
+  query: string,
+  assigneeTerms: ReadonlyMap<string, string>,
+): Task[] {
+  const normalizedQuery = query.trim().toLocaleLowerCase();
+  if (!normalizedQuery) return tasks;
+
+  return tasks.filter((task) =>
+    task.title.toLocaleLowerCase().includes(normalizedQuery)
+    || (assigneeTerms.get(task.assignee_id) ?? "")
+      .toLocaleLowerCase()
+      .includes(normalizedQuery),
+  );
 }
 
 export function getTaskDueInfo(
@@ -129,6 +174,26 @@ export function countTaskStatuses(tasks: Task[]): Record<TaskStatus, number> {
 
 export function filterTasks(tasks: Task[], filter: TaskFilter): Task[] {
   return filter === "all" ? tasks : tasks.filter((task) => task.status === filter);
+}
+
+export function sortTaskList(
+  tasks: Task[],
+  sort: TaskSort,
+  role: UserRole,
+): Task[] {
+  const priority = role === "manager" ? managerPriority : memberPriority;
+  return [...tasks].sort((left, right) => {
+    const primary =
+      sort === "due_desc"
+        ? right.due_date.localeCompare(left.due_date)
+        : sort === "updated_desc"
+          ? right.updated_at.localeCompare(left.updated_at)
+          : left.due_date.localeCompare(right.due_date);
+
+    return primary
+      || priority[left.status] - priority[right.status]
+      || right.created_at.localeCompare(left.created_at);
+  });
 }
 
 export function sortTasks(tasks: Task[], role: UserRole): Task[] {

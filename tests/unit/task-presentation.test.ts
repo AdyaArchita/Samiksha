@@ -1,11 +1,15 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildTaskListHref,
   buildTaskHistory,
   countTaskStatuses,
   filterTasks,
+  filterTasksByQuery,
   formatRelativeTime,
   getTaskDueInfo,
   parseTaskFilter,
+  parseTaskSort,
+  sortTaskList,
   sortTasks,
 } from "../../lib/task-presentation";
 import type { Review, Submission, Task } from "../../lib/types";
@@ -53,6 +57,54 @@ describe("task presentation helpers", () => {
     expect(parseTaskFilter("changes_requested")).toBe("changes_requested");
     expect(parseTaskFilter(["approved", "assigned"])).toBe("approved");
     expect(parseTaskFilter("unknown")).toBe("all");
+  });
+
+  it("parses sort options and falls back to soonest due date", () => {
+    expect(parseTaskSort("due_desc")).toBe("due_desc");
+    expect(parseTaskSort(["updated_desc", "due_desc"])).toBe("updated_desc");
+    expect(parseTaskSort("unknown")).toBe("due_asc");
+  });
+
+  it("filters task titles and assignee details without regard to case", () => {
+    const tasks = [
+      { ...task("1", "assigned"), title: "Write quarterly report", assignee_id: "member-1" },
+      { ...task("2", "submitted"), title: "Review mockups", assignee_id: "member-2" },
+    ];
+    const assigneeTerms = new Map([
+      ["member-1", "Ria Example ria@example.test"],
+      ["member-2", "Morgan Lee morgan@example.test"],
+    ]);
+
+    expect(filterTasksByQuery(tasks, "QUARTERLY", assigneeTerms).map(({ id }) => id))
+      .toEqual(["1"]);
+    expect(filterTasksByQuery(tasks, "morgan@example.test", assigneeTerms).map(({ id }) => id))
+      .toEqual(["2"]);
+  });
+
+  it("sorts by due date or update time and keeps filter query parameters in links", () => {
+    const tasks = [
+      {
+        ...task("1", "assigned"),
+        due_date: "2026-12-03",
+        updated_at: "2026-11-20T10:00:00.000Z",
+      },
+      {
+        ...task("2", "submitted"),
+        due_date: "2026-11-28",
+        updated_at: "2026-11-22T10:00:00.000Z",
+      },
+    ];
+
+    expect(sortTaskList(tasks, "due_asc", "manager").map(({ id }) => id)).toEqual(["2", "1"]);
+    expect(sortTaskList(tasks, "due_desc", "manager").map(({ id }) => id)).toEqual(["1", "2"]);
+    expect(sortTaskList(tasks, "updated_desc", "manager").map(({ id }) => id)).toEqual(["2", "1"]);
+    expect(
+      buildTaskListHref("/member", {
+        status: "submitted",
+        query: "ria example",
+        sort: "updated_desc",
+      }),
+    ).toBe("/member?status=submitted&q=ria+example&sort=updated_desc");
   });
 
   it("counts and filters task statuses", () => {

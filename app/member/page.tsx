@@ -7,24 +7,34 @@ import { AppShell } from "@/components/app-shell";
 import { EmptyState } from "@/components/ui/empty-state";
 import { DashboardSkeleton } from "@/components/ui/skeletons";
 import { TaskCard } from "@/components/ui/task-card";
+import { TaskListControls } from "@/components/ui/task-list-controls";
 import { TaskStatusSummary } from "@/components/ui/task-status-summary";
 import { requireRole } from "@/lib/auth";
 import {
+  buildTaskListHref,
   countTaskStatuses,
   filterTasks,
+  filterTasksByQuery,
   parseTaskFilter,
-  sortTasks,
+  parseTaskSort,
+  sortTaskList,
 } from "@/lib/task-presentation";
 import type { Task } from "@/lib/types";
 
 type MemberPageProps = {
-  searchParams: Promise<{ status?: string | string[] }>;
+  searchParams: Promise<{
+    status?: string | string[];
+    q?: string | string[];
+    sort?: string | string[];
+  }>;
 };
 
 async function MemberTaskList({ searchParams }: MemberPageProps) {
   await connection();
-  const { status } = await searchParams;
+  const { status, q, sort: sortValue } = await searchParams;
   const filter = parseTaskFilter(status);
+  const query = (Array.isArray(q) ? q[0] ?? "" : q ?? "").trim();
+  const sort = parseTaskSort(sortValue);
   const user = await requireRole("member");
   const supabase = await createSupabaseServerClient();
   const { data: tasksData, error } = await supabase
@@ -43,7 +53,14 @@ async function MemberTaskList({ searchParams }: MemberPageProps) {
       : "there";
   const today = now.slice(0, 10);
   const counts = countTaskStatuses(tasks);
-  const visibleTasks = filterTasks(sortTasks(tasks, "member"), filter);
+  const assigneeTerms = new Map([
+    [user.id, [displayName, user.email].filter(Boolean).join(" ")],
+  ]);
+  const visibleTasks = sortTaskList(
+    filterTasksByQuery(filterTasks(tasks, filter), query, assigneeTerms),
+    sort,
+    "member",
+  );
 
   return (
     <div className="space-y-7">
@@ -62,6 +79,14 @@ async function MemberTaskList({ searchParams }: MemberPageProps) {
             pathname="/member"
             counts={counts}
             selected={filter}
+            query={query}
+            sort={sort}
+          />
+          <TaskListControls
+            pathname="/member"
+            query={query}
+            sort={sort}
+            status={filter}
           />
           <section aria-labelledby="member-tasks-heading">
             <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
@@ -79,7 +104,7 @@ async function MemberTaskList({ searchParams }: MemberPageProps) {
                 </p>
                 {filter !== "all" && (
                   <Link
-                    href="/member"
+                    href={buildTaskListHref("/member", { query, sort })}
                     className="rounded text-sm text-accent hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
                   >
                     Show all tasks
@@ -92,8 +117,14 @@ async function MemberTaskList({ searchParams }: MemberPageProps) {
                 New tasks assigned to you will appear here.
               </EmptyState>
             ) : visibleTasks.length === 0 ? (
-              <EmptyState title="No tasks in this status">
-                Choose another status filter to see more tasks.
+              <EmptyState title="No tasks match your search">
+                Try changing your search or clearing the status filter.{" "}
+                <Link
+                  href={buildTaskListHref("/member", { sort })}
+                  className="font-medium text-accent underline-offset-2 hover:underline"
+                >
+                  Clear search
+                </Link>
               </EmptyState>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
