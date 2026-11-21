@@ -3,7 +3,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(36);
+select plan(39);
 
 select set_config(
   'test.manager_a',
@@ -152,12 +152,30 @@ select lives_ok(
 );
 select is(
   (
+    select link is null and file_path is null
+    from public.submissions
+    where id = current_setting('test.submission_1')::uuid
+  ),
+  true,
+  'text-only submission is accepted without a link or file'
+);
+select is(
+  (
     select version
     from public.submissions
     where id = current_setting('test.submission_1')::uuid
   ),
   1,
   'first submission receives version 1'
+);
+select is(
+  (
+    select status
+    from public.tasks
+    where id = current_setting('test.task_x')::uuid
+  ),
+  'submitted',
+  'text-only submission moves the task to submitted'
 );
 select is(
   (
@@ -237,6 +255,15 @@ select set_config(
   'request.jwt.claims',
   json_build_object('sub', current_setting('test.manager_a'))::text,
   true
+);
+select is(
+  (
+    select count(*)::integer
+    from public.submissions
+    where id = current_setting('test.submission_1')::uuid
+  ),
+  1,
+  'manager can read the text-only submission'
 );
 select throws_ok(
   format(
