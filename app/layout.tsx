@@ -12,6 +12,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const instant = false;
+
 export const metadata: Metadata = {
   title: "Samiksha",
   description: "Task submission and approval system",

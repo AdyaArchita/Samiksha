@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { friendlyPostgresError, logDatabaseError } from "@/lib/errors";
 import { reviewSchema } from "@/lib/validation";
