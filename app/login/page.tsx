@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { LoginForm } from "./login-form";
 import { getLoginErrorMessage } from "@/lib/auth-errors";
+import { Toast } from "@/components/ui/toast";
 
 type LoginPageProps = {
   searchParams: Promise<{ error?: string | string[] }>;
@@ -11,11 +12,7 @@ async function LoginErrorSlot({ searchParams }: LoginPageProps) {
   const message = getLoginErrorMessage(Array.isArray(error) ? error[0] : error);
   if (!message) return null;
 
-  return (
-    <p role="alert" className="rounded-md bg-red-50 p-3 text-sm text-red-700">
-      {message}
-    </p>
-  );
+  return <Toast variant="error">{message}</Toast>;
 }
 
 export default function LoginPage({ searchParams }: LoginPageProps) {

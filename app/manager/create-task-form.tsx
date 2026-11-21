@@ -3,33 +3,38 @@
 import { useActionState } from "react";
 import { createTask, type ActionState } from "@/app/actions/tasks";
 import type { Profile } from "@/lib/types";
+import { Button } from "@/components/ui/button";
+import { Toast } from "@/components/ui/toast";
+
+const fieldClassName =
+  "mt-1.5 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500";
 
 export function CreateTaskForm({ members }: { members: Profile[] }) {
-  const [state, action, pending] = useActionState<ActionState, FormData>(
+  const [state, action] = useActionState<ActionState, FormData>(
     createTask,
     undefined,
   );
 
   return (
-    <section className="rounded-lg border bg-white p-5">
-      <h2 className="text-lg font-semibold">Create task</h2>
-      {state?.error && <p role="alert" className="mt-3 rounded-md bg-red-50 p-3 text-sm text-red-700">{state.error}</p>}
-      {state?.success && <p role="status" className="mt-3 rounded-md bg-emerald-50 p-3 text-sm text-emerald-700">{state.success}</p>}
-      <form action={action} className="mt-4 grid gap-4 sm:grid-cols-2">
-        <label className="text-sm font-medium sm:col-span-2">
+    <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-lg sm:p-6">
+      <h2 className="text-lg font-semibold text-slate-900">Create task</h2>
+      {state?.error && <div className="mt-4"><Toast variant="error">{state.error}</Toast></div>}
+      {state?.success && <div className="mt-4"><Toast variant="success">{state.success}</Toast></div>}
+      <form action={action} className="mt-5 grid gap-4 sm:grid-cols-2">
+        <label className="text-sm font-semibold text-slate-700 sm:col-span-2">
           Title
-          <input name="title" required maxLength={120} className="mt-1 w-full rounded-md border px-3 py-2" />
+          <input name="title" required maxLength={120} className={fieldClassName} />
         </label>
-        <label className="text-sm font-medium sm:col-span-2">
+        <label className="text-sm font-semibold text-slate-700 sm:col-span-2">
           Instructions
-          <textarea name="instructions" required rows={4} maxLength={5000} className="mt-1 w-full rounded-md border px-3 py-2" />
+          <textarea name="instructions" required rows={4} maxLength={5000} className={fieldClassName} />
         </label>
-        <label className="text-sm font-medium">
+        <label className="text-sm font-semibold text-slate-700">
           Assignee
           {members.length === 0 ? (
-            <p className="mt-2 text-sm text-zinc-500">No member profiles are available.</p>
+            <p className="mt-2 text-sm text-slate-500">No member profiles are available.</p>
           ) : (
-            <select name="assigneeId" required className="mt-1 w-full rounded-md border px-3 py-2">
+            <select name="assigneeId" required className={fieldClassName} defaultValue="">
               <option value="">Select a member</option>
               {members.map((member) => (
                 <option key={member.id} value={member.id}>
@@ -39,13 +44,17 @@ export function CreateTaskForm({ members }: { members: Profile[] }) {
             </select>
           )}
         </label>
-        <label className="text-sm font-medium">
+        <label className="text-sm font-semibold text-slate-700">
           Due date (required)
-          <input name="dueDate" type="date" required className="mt-1 w-full rounded-md border px-3 py-2" />
+          <input name="dueDate" type="date" required className={fieldClassName} />
         </label>
-        <button disabled={pending || members.length === 0} className="rounded-md bg-zinc-950 px-4 py-2 font-medium text-white disabled:opacity-50 sm:col-span-2">
-          {pending ? "Creating..." : "Create task"}
-        </button>
+        <Button
+          disabled={members.length === 0}
+          pendingLabel="Creating task..."
+          className="sm:col-span-2"
+        >
+          Create task
+        </Button>
       </form>
     </section>
   );

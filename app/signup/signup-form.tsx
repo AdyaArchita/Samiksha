@@ -2,38 +2,40 @@
 
 import { useActionState } from "react";
 import { signup, type AuthActionState } from "@/app/actions/auth";
+import { Button } from "@/components/ui/button";
+import { Toast } from "@/components/ui/toast";
 
 export function SignupForm() {
-  const [state, action, pending] = useActionState<AuthActionState, FormData>(
+  const [state, action] = useActionState<AuthActionState, FormData>(
     signup,
     undefined,
   );
 
   return (
-    <form action={action} className="w-full space-y-4 rounded-xl border p-6 shadow-sm">
+    <form action={action} className="w-full space-y-5 rounded-2xl border border-slate-200 bg-white p-7 shadow-lg shadow-slate-200/60 sm:p-8">
       <div>
-        <h1 className="text-2xl font-semibold">Create account</h1>
-        <p className="mt-1 text-sm text-amber-700">New accounts start as members. Promote managers using the documented SQL setup step.</p>
+        <p className="text-sm font-semibold text-indigo-700">Skylent Tasks</p>
+        <h1 className="mt-2 text-2xl font-bold tracking-tight text-slate-900">Create account</h1>
+        <p className="mt-1 text-sm text-slate-600">New accounts start as members.</p>
+        <p className="mt-1 text-sm text-slate-500">Managers are promoted using the documented database setup step.</p>
       </div>
       {state?.error && (
-        <p role="alert" className="rounded-md bg-red-50 p-3 text-sm text-red-700">{state.error}</p>
+        <Toast variant="error">{state.error}</Toast>
       )}
-      <label className="block text-sm font-medium">
+      <label className="block text-sm font-semibold text-slate-700">
         Full name
-        <input name="fullName" required minLength={2} className="mt-1 w-full rounded-md border px-3 py-2" />
+        <input name="fullName" autoComplete="name" required minLength={2} className="mt-1.5 min-h-11 w-full rounded-lg border border-slate-300 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500" />
       </label>
-      <label className="block text-sm font-medium">
+      <label className="block text-sm font-semibold text-slate-700">
         Email
-        <input name="email" type="email" required className="mt-1 w-full rounded-md border px-3 py-2" />
+        <input name="email" type="email" autoComplete="email" required className="mt-1.5 min-h-11 w-full rounded-lg border border-slate-300 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500" />
       </label>
-      <label className="block text-sm font-medium">
+      <label className="block text-sm font-semibold text-slate-700">
         Password
-        <input name="password" type="password" required minLength={8} className="mt-1 w-full rounded-md border px-3 py-2" />
+        <input name="password" type="password" autoComplete="new-password" required minLength={8} className="mt-1.5 min-h-11 w-full rounded-lg border border-slate-300 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500" />
       </label>
-      <button disabled={pending} className="w-full rounded-md bg-zinc-950 px-4 py-2 font-medium text-white disabled:opacity-50">
-        {pending ? "Creating account..." : "Create account"}
-      </button>
-      <a href="/login" className="block text-center text-sm text-blue-700">Already have an account?</a>
+      <Button pendingLabel="Creating account..." className="w-full">Create account</Button>
+      <a href="/login" className="block rounded text-center text-sm font-semibold text-indigo-700 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500">Already have an account?</a>
     </form>
   );
 }
