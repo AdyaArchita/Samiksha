@@ -57,19 +57,25 @@ export function TaskListControls({
           )}
         </span>
       </div>
-      <label className="text-sm font-medium text-foreground">
-        Sort by
+      <div className="flex items-center gap-2">
+        <label
+          htmlFor="task-sort"
+          className="whitespace-nowrap text-sm font-medium text-foreground"
+        >
+          Sort by
+        </label>
         <select
+          id="task-sort"
           name="sort"
           defaultValue={sort}
           onChange={(event) => event.currentTarget.form?.requestSubmit()}
-          className="mt-1 min-h-11 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
+          className="min-h-11 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
         >
           <option value="due_asc">Due date (soonest first)</option>
           <option value="due_desc">Due date (latest first)</option>
           <option value="updated_desc">Recently updated</option>
         </select>
-      </label>
+      </div>
       <Button
         type="submit"
         variant="secondary"
