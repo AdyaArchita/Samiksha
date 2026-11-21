@@ -5,10 +5,10 @@
 | Required area | Automated test | Manual step |
 |---|---|---|
 | Task creation | `supabase/tests/workflow_rls.test.sql` (manager allowed; member and manager-assignee attempts rejected); Vitest task Zod validation | [ ] to verify: create a task as manager, confirm due date/assignee, then attempt the same action as a member |
-| Submission | pgTAP checks assignee access, wrong member/status, generated version, and client-supplied timestamp rejection; Vitest response/file/link validation | [ ] to verify: submit as the assignee and attempt submission as another member and while awaiting review |
+| Submission | pgTAP checks text-only insertion, assignee access, wrong member/status, generated version, and client-supplied timestamp rejection; Vitest checks text-only, optional file/link combinations, invalid links, and non-empty response validation | [ ] to verify: submit a written response without a file or link, then test optional file/link combinations |
 | Review | pgTAP checks manager/owner, non-submitted state, latest submission, and required feedback; Vitest review schema and error mapping | [ ] to verify: request changes with feedback, then try review as another manager/member |
 | Resubmission | pgTAP checks version increment and preserved prior rows after changes requested | [ ] to verify: submit a revised version and confirm prior version and feedback remain visible |
-| Access restrictions | pgTAP checks task, submission, review, and storage isolation; also direct task status update and append-only history restrictions | [ ] to verify: use a second member to open another member's task/file and verify a member cannot approve work |
+| Access restrictions | pgTAP checks task, submission, review, and storage isolation; also direct task status update and append-only history restrictions | [ ] to verify: use a second member to open another member's task and first member's file URL; verify a member cannot approve work |
 
 Pure tests in `tests/unit/` cover transition helpers, due-date/task/submission/review schemas, allowed file types and size, HTTP(S) links, storage path construction, and PostgreSQL error-code mapping. Run:
 
@@ -60,11 +60,11 @@ The test transaction expects all four profiles to exist, creates task/history fi
 Use one manager and two member accounts after migrations have been applied. Mark each step only after testing it against the target environment.
 
 - [ ] to verify: (1) Manager creates a task for a member with title, instructions, and due date.
-- [ ] to verify: (2) Member opens the task and submits a written response with a file or a link.
+- [ ] to verify: (2) Member opens the task and submits a non-empty written response with no file or link; confirm the task becomes Submitted and the manager can see it.
 - [ ] to verify: (3) Manager requests changes and enters feedback.
-- [ ] to verify: (4) Member submits revised work; the earlier version and review remain visible.
+- [ ] to verify: (4) Member submits revised work, optionally with a file and/or link; the earlier version and review remain visible.
 - [ ] to verify: (5) Manager approves the latest submission.
-- [ ] to verify: (6) A different member cannot access the task/file, and a member cannot approve their own work.
+- [ ] to verify: (6) A different member cannot access the task, submissions, reviews, or the first member's file URL, and a member cannot approve their own work.
 
 ## Environment and secret audit
 

@@ -19,3 +19,7 @@ No deployment has been made; there is no live URL yet. These steps describe the 
 - [ ] to verify: Supabase Site URL and Redirect URLs match the intended Vercel domain(s).
 - [ ] to verify: the full role-based workflow and private storage access work in the deployed environment.
 - [ ] to verify: publish the live URL for the reviewer.
+
+## Pushing
+
+Push only the `main` branch with `git push origin main`. Never use `--all` or `--mirror` from this repository.

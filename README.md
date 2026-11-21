@@ -1,6 +1,6 @@
 # Samiksha
 
-Samiksha is a two-role task submission and review app. Managers assign work to members; members submit written work with a file or link; managers approve the latest submission or request changes. Database enforcement described below is the intended design from migrations 001-004, not behavior verified against a live database.
+Samiksha is a two-role task submission and review app. Managers assign work to members; members submit a written response, with an optional file and/or link; managers approve the latest submission or request changes. Database enforcement described below is the intended design from migrations 001-004, not behavior verified against a live database.
 
 **Live URL:** Not deployed yet — add the Vercel URL here after deployment.
 
@@ -10,7 +10,7 @@ Samiksha is a two-role task submission and review app. Managers assign work to m
 
 1. A manager creates a task with title, instructions, due date, and member assignee.
 2. The assigned member sees the task, instructions, due date, and current status.
-3. The member submits a written response and at least one file or link.
+3. The member submits a written response, with an optional file and/or link.
 4. The owning manager reviews the latest version and approves it or requests changes with feedback.
 5. The member may resubmit after changes are requested; prior versions remain in history.
 6. A task reaches `approved` only after a manager review.
@@ -23,6 +23,8 @@ assigned -> submitted -> approved
 ```
 
 The UI labels these states Assigned, Submitted, Approved, and Changes Requested. The state-transition triggers and RLS policies are **designed behavior based on SQL**; they have not been tested against a Supabase project. See [TESTING.md](./TESTING.md); manual checks are `[ ] to verify`.
+
+The brief says, “The member submits a written response and can attach a file or add a link” (Project - 1.pdf, p. 1). Accordingly, the written response is required; a file and a link are each optional.
 
 ## Tech stack
 
@@ -62,7 +64,7 @@ Do not run local reset commands against a hosted project. The migrations have no
 | `reviews` | Each review references a matching task/submission pair; only one review per submission. | Task parties can read; only the owning manager can insert a review for the latest submission. No authenticated UPDATE/DELETE grant. |
 | `storage.objects` in `submission-files` | File object path is `{task_id}/{submission_id}/{filename}`. | Assigned members can upload for open tasks; only task parties can read. The bucket is private; no app update/delete policy is defined. |
 
-These are policy intentions from the SQL, not confirmed database results. See [docs/PHASE2_ACCESS.md](./docs/PHASE2_ACCESS.md) and [docs/PHASE2_AUDIT.md](./docs/PHASE2_AUDIT.md).
+These are policy intentions from the SQL, not confirmed database results. After running the migrations, confirm in the Supabase dashboard that RLS is enabled on `storage.objects`. See [docs/PHASE2_ACCESS.md](./docs/PHASE2_ACCESS.md) and [docs/PHASE2_AUDIT.md](./docs/PHASE2_AUDIT.md).
 
 ## Authentication and roles
 
@@ -80,7 +82,7 @@ Run the statement only for the intended account, after its profile exists. The a
 
 - Submissions and reviews are append-only for authenticated users; the database design rejects UPDATE and DELETE.
 - Triggers assign submission versions and change task status in the same transaction as accepted submissions/reviews.
-- The `submission-files` bucket is private. The app requests short-lived signed URLs after a task-party access check.
+- The `submission-files` bucket is private. The signed-file route requires a signed-in user and creates the signed URL with that user's session. The Storage RLS policy is intended to enforce object access when the URL is created; this behavior has not yet been observed against a real Supabase project.
 - Object paths use `{task_id}/{submission_id}/{filename}` so the storage policy can bind an object to its task.
 - Upload occurs before the submission row is inserted. If the upload succeeds and the database insert fails, an orphan object is possible; cleanup is a known manual limitation.
 - `profiles.id` references `auth.users.id` with `ON DELETE RESTRICT`. Accounts with task/history references cannot be deleted from the dashboard until those references are deliberately handled.

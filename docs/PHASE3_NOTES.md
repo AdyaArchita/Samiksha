@@ -32,7 +32,7 @@ Set up four accounts: Manager A, Manager B, Member X, and Member Y.
 - [ ] to verify: Sign in as Manager A and open `/manager`.
 - [ ] to verify: Create a task for Member X with a title, instructions, assignee, and required due date.
 - [ ] to verify: Sign in as Member X, open `/member`, and check the task and due date.
-- [ ] to verify: Open `/member/tasks/[task-id]`, enter a written response and at least one link or file, and submit.
+- [ ] to verify: Open `/member/tasks/[task-id]`, enter a non-empty written response with no file or link, and submit; file and link are optional.
 - [ ] to verify: Observe the intended `Submitted` status.
 - [ ] to verify: Sign in as Manager B and check that the task is not visible or reviewable.
 - [ ] to verify: Sign in as Manager A and open `/manager/tasks/[task-id]`.

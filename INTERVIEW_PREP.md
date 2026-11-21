@@ -22,8 +22,9 @@ Database permission and trigger answers below describe the SQL design only; do n
 6. **How are duplicate or stale reviews rejected?**  
    The SQL design combines one review per submission, a composite task/submission foreign key, and a trigger check that the reviewed submission is the latest.
 
-7. **How are uploaded files protected?**  
-   The bucket is private; the path starts with task and submission IDs. Storage policies are designed to restrict uploads to an assignee on an open task and reads to task parties. The app returns signed download URLs after a session-based access check.
+7. **How are optional file attachments protected?**
+
+   A file is optional. When one is supplied, the bucket is private and the path starts with task and submission IDs. The signed-file route requires a signed-in user and creates the URL with that user's session; Storage RLS is designed to enforce object access when the URL is created. This behavior has not been observed against a real project.
 
 8. **What happens when an upload succeeds but submission insertion fails?**  
    An orphan object can remain because upload precedes the database insert. This is documented as a known limitation; operational cleanup is manual.
