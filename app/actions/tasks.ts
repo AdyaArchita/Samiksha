@@ -2,7 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { friendlyPostgresError, logDatabaseError } from "@/lib/errors";
+import { logDatabaseError } from "@/lib/errors";
+import {
+  taskCreationFailure,
+  taskCreationValidationMessage,
+} from "@/lib/task-errors";
 import { createTaskSchema } from "@/lib/validation";
 
 export type ActionState = { error?: string; success?: string } | undefined;
@@ -18,7 +22,12 @@ export async function createTask(
     assigneeId: formData.get("assigneeId"),
   });
   if (!parsed.success) {
-    return { error: "Check the task title, instructions, assignee, and due date." };
+    const field = parsed.error.issues[0]?.path[0];
+    return {
+      error: taskCreationValidationMessage(
+        typeof field === "string" || typeof field === "number" ? field : undefined,
+      ),
+    };
   }
 
   const supabase = await createSupabaseServerClient();
@@ -34,8 +43,9 @@ export async function createTask(
   });
 
   if (error) {
-    logDatabaseError(error, error.code);
-    return { error: friendlyPostgresError(error) };
+    const failure = taskCreationFailure(error);
+    if (failure.shouldLog) logDatabaseError(error, error.code);
+    return { error: failure.message };
   }
 
   revalidatePath("/manager");
