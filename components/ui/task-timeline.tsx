@@ -1,4 +1,4 @@
-import type { TaskHistoryEvent } from "@/lib/task-presentation";
+import { getInitials, type TaskHistoryEvent } from "@/lib/task-presentation";
 import type { TaskStatus } from "@/lib/types";
 import { EmptyState } from "./empty-state";
 import { StatusBadge } from "./status-badge";
@@ -46,7 +46,15 @@ export function TaskTimeline({
                     {new Date(event.createdAt).toLocaleString()}
                   </time>
                 </div>
-                <p className="mt-2 text-sm text-muted">{event.actor}</p>
+                <div className="mt-2 flex items-center gap-2">
+                  <span
+                    aria-hidden="true"
+                    className="grid size-7 shrink-0 place-items-center rounded-full bg-background text-xs font-semibold text-foreground"
+                  >
+                    {getInitials(event.actor)}
+                  </span>
+                  <p className="text-sm text-muted">{event.actor}</p>
+                </div>
                 {event.description && (
                   <p className="mt-1 text-sm text-muted">{event.description}</p>
                 )}
@@ -69,7 +77,7 @@ export function TaskTimeline({
                         href={event.submission.link}
                         target="_blank"
                         rel="noreferrer"
-                        className="mt-2 block break-all text-sm font-medium text-foreground underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                        className="mt-2 block break-all text-sm font-medium text-foreground underline underline-offset-2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
                       >
                         Open submitted link
                       </a>
@@ -79,7 +87,7 @@ export function TaskTimeline({
                         href={`/api/files/signed?path=${encodeURIComponent(event.submission.file_path)}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="mt-2 block text-sm font-medium text-foreground underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                        className="mt-2 block text-sm font-medium text-foreground underline underline-offset-2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
                       >
                         Download attachment
                       </a>

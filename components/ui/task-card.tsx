@@ -1,6 +1,10 @@
 import Link from "next/link";
 import type { Task } from "@/lib/types";
-import { formatRelativeTime, getTaskDueInfo } from "@/lib/task-presentation";
+import {
+  formatRelativeTime,
+  getInitials,
+  getTaskDueInfo,
+} from "@/lib/task-presentation";
 import { StatusBadge } from "./status-badge";
 
 export function TaskCard({
@@ -26,7 +30,7 @@ export function TaskCard({
   return (
     <Link
       href={href}
-      className="group flex h-full flex-col rounded-xl border border-border bg-surface p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-muted hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+      className="group flex h-full flex-col rounded-xl border border-border bg-surface p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-muted hover:shadow-md focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
     >
       <div className="flex items-start justify-between gap-3">
         <h3 className="min-w-0 font-semibold text-foreground">
@@ -39,15 +43,29 @@ export function TaskCard({
       </p>
       <div className="mt-auto space-y-3 pt-5">
         {(assigneeName || assigneeEmail) && (
-          <div className="text-xs">
-            {assigneeName ? (
-              <>
-                <p className="font-medium text-foreground">Assigned to {assigneeName}</p>
-                {assigneeEmail && <p className="mt-0.5 text-muted">{assigneeEmail}</p>}
-              </>
-            ) : (
-              <p className="font-medium text-muted">Assigned to {assigneeEmail}</p>
-            )}
+          <div className="flex items-center gap-2 text-xs">
+            <span
+              aria-hidden="true"
+              className="grid size-8 shrink-0 place-items-center rounded-full bg-background font-semibold text-foreground"
+            >
+              {getInitials(assigneeName || assigneeEmail || "")}
+            </span>
+            <div className="min-w-0">
+              {assigneeName ? (
+                <>
+                  <p className="truncate font-medium text-foreground">
+                    Assigned to {assigneeName}
+                  </p>
+                  {assigneeEmail && (
+                    <p className="mt-0.5 truncate text-muted">{assigneeEmail}</p>
+                  )}
+                </>
+              ) : (
+                <p className="truncate font-medium text-muted">
+                  Assigned to {assigneeEmail}
+                </p>
+              )}
+            </div>
           </div>
         )}
         <div className="flex flex-wrap items-center justify-between gap-2 text-xs">

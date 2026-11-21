@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Toast } from "@/components/ui/toast";
 
 const fieldClassName =
-  "mt-1.5 min-h-11 w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent";
+  "mt-1.5 min-h-11 w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent";
 
 export function CreateTaskForm({ members }: { members: Profile[] }) {
   const [state, action] = useActionState<ActionState, FormData>(

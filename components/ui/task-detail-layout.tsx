@@ -21,7 +21,7 @@ export function TaskDetailLayout({
     <div className="space-y-5">
       <Link
         href={`/${role}`}
-        className="inline-flex min-h-9 items-center rounded text-sm font-semibold text-foreground underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="inline-flex min-h-9 items-center rounded text-sm font-semibold text-foreground underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
       >
         <span aria-hidden="true" className="mr-2">←</span>
         Back to {role === "manager" ? "manager dashboard" : "my tasks"}

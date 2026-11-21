@@ -8,7 +8,7 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { Toast } from "@/components/ui/toast";
 
 const fieldClassName =
-  "mt-1.5 min-h-11 w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent";
+  "mt-1.5 min-h-11 w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent";
 
 export function SubmissionForm({
   taskId,
@@ -50,7 +50,7 @@ export function SubmissionForm({
         </label>
         <label className="block text-sm font-semibold text-foreground">
           File (optional, up to 5 MB)
-          <input name="file" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.csv,.png,.jpg,.jpeg,.webp,.zip" className="mt-1.5 block w-full rounded-lg border border-border bg-surface p-2 text-sm text-foreground file:mr-3 file:rounded-md file:border-0 file:bg-background file:px-3 file:py-1.5 file:font-semibold file:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent" />
+          <input name="file" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.csv,.png,.jpg,.jpeg,.webp,.zip" className="mt-1.5 block w-full rounded-lg border border-border bg-surface p-2 text-sm text-foreground file:mr-3 file:rounded-md file:border-0 file:bg-background file:px-3 file:py-1.5 file:font-semibold file:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent" />
         </label>
         <Button pendingLabel="Submitting work...">Submit work</Button>
       </form>

@@ -14,6 +14,18 @@ export type TaskHistoryEvent = {
   submission?: Submission;
 };
 
+export function getInitials(value: string): string {
+  const normalized = value.trim();
+  if (!normalized) return "";
+
+  const name = normalized.includes("@") ? normalized.split("@")[0] : normalized;
+  const parts = name.split(/[.+\s_-]+/).filter(Boolean);
+  if (parts.length > 1) {
+    return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+  }
+  return parts[0]?.[0]?.toUpperCase() ?? "";
+}
+
 const managerPriority: Record<TaskStatus, number> = {
   submitted: 0,
   changes_requested: 1,

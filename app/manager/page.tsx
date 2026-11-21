@@ -95,7 +95,7 @@ async function ManagerDashboard({ searchParams }: ManagerPageProps) {
           <p className="mt-1 text-sm text-muted">Create assignments and keep reviews moving.</p>
         </div>
         <details className="group relative">
-          <summary className="inline-flex min-h-10 cursor-pointer list-none items-center justify-center rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">
+          <summary aria-label="Create new task" className="inline-flex min-h-10 cursor-pointer list-none items-center justify-center rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent">
             <span aria-hidden="true" className="mr-2 text-lg leading-none">+</span>
             New task
           </summary>

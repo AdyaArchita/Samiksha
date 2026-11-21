@@ -105,7 +105,7 @@ export function ReviewForm({
                     required
                     rows={4}
                     maxLength={5000}
-                    className="mt-1.5 min-h-24 w-full rounded-lg border border-status-changes-ring bg-surface px-3 py-2 text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-changes-fg"
+                    className="mt-1.5 min-h-24 w-full rounded-lg border border-status-changes-ring bg-surface px-3 py-2 text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-status-changes-fg"
                   />
                 </label>
               )}

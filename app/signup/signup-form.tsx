@@ -24,18 +24,18 @@ export function SignupForm() {
       )}
       <label className="block text-sm font-semibold text-foreground">
         Full name
-        <input name="fullName" autoComplete="name" required minLength={2} className="mt-1.5 min-h-11 w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent" />
+        <input name="fullName" autoComplete="name" required minLength={2} className="mt-1.5 min-h-11 w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent" />
       </label>
       <label className="block text-sm font-semibold text-foreground">
         Email
-        <input name="email" type="email" autoComplete="email" required className="mt-1.5 min-h-11 w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent" />
+        <input name="email" type="email" autoComplete="email" required className="mt-1.5 min-h-11 w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent" />
       </label>
       <label className="block text-sm font-semibold text-foreground">
         Password
-        <input name="password" type="password" autoComplete="new-password" required minLength={8} className="mt-1.5 min-h-11 w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent" />
+        <input name="password" type="password" autoComplete="new-password" required minLength={8} className="mt-1.5 min-h-11 w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent" />
       </label>
       <Button pendingLabel="Creating account..." className="w-full">Create account</Button>
-      <a href="/login" className="block rounded text-center text-sm font-semibold text-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">Already have an account?</a>
+      <a href="/login" className="block rounded text-center text-sm font-semibold text-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent">Already have an account?</a>
     </form>
   );
 }

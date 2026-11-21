@@ -6,6 +6,7 @@ import {
   filterTasks,
   filterTasksByQuery,
   formatRelativeTime,
+  getInitials,
   getTaskDueInfo,
   parseTaskFilter,
   parseTaskSort,
@@ -27,6 +28,13 @@ const task = (id: string, status: Task["status"]): Task => ({
 });
 
 describe("task presentation helpers", () => {
+  it("creates initials from names and email addresses", () => {
+    expect(getInitials("Ria Mehta")).toBe("RM");
+    expect(getInitials("ria.mehta@example.test")).toBe("RM");
+    expect(getInitials("ria@example.test")).toBe("R");
+    expect(getInitials("  ")).toBe("");
+  });
+
   it.each([
     ["today", "2026-11-21", "assigned", "Nov 21, 2026", "today", false],
     ["tomorrow", "2026-11-22", "assigned", "Nov 22, 2026", "tomorrow", false],

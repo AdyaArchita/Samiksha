@@ -26,14 +26,14 @@ export function LoginForm({ errorSlot }: { errorSlot?: ReactNode }) {
       </div>
       <label className="block text-sm font-semibold text-foreground">
         Email
-        <input name="email" type="email" autoComplete="email" required className="mt-1.5 min-h-11 w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent" />
+        <input name="email" type="email" autoComplete="email" required className="mt-1.5 min-h-11 w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent" />
       </label>
       <label className="block text-sm font-semibold text-foreground">
         Password
-        <input name="password" type="password" autoComplete="current-password" required className="mt-1.5 min-h-11 w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent" />
+        <input name="password" type="password" autoComplete="current-password" required className="mt-1.5 min-h-11 w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent" />
       </label>
       <Button pendingLabel="Signing in..." className="w-full">Sign in</Button>
-      <a href="/signup" className="block rounded text-center text-sm font-semibold text-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">Create an account</a>
+      <a href="/signup" className="block rounded text-center text-sm font-semibold text-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent">Create an account</a>
     </form>
   );
 }

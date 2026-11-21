@@ -56,6 +56,11 @@ async function MemberTaskList({ searchParams }: MemberPageProps) {
     && user.user_metadata.full_name.trim()
       ? user.user_metadata.full_name
       : "there";
+  const assigneeName =
+    typeof user.user_metadata?.full_name === "string"
+    && user.user_metadata.full_name.trim()
+      ? user.user_metadata.full_name
+      : undefined;
   const today = now.slice(0, 10);
   const counts = countTaskStatuses(tasks);
   const assigneeTerms = new Map([
@@ -140,6 +145,8 @@ async function MemberTaskList({ searchParams }: MemberPageProps) {
                     href={`/member/tasks/${task.id}`}
                     today={today}
                     now={now}
+                    assigneeName={assigneeName}
+                    assigneeEmail={user.email}
                   />
                 ))}
               </div>

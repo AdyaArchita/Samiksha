@@ -22,7 +22,7 @@ export default function Error({
           <Button onClick={retry}>Try again</Button>
           <Link
             href="/dashboard"
-            className="inline-flex min-h-10 items-center justify-center rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-foreground hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+            className="inline-flex min-h-10 items-center justify-center rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-foreground hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
           >
             Back to dashboard
           </Link>

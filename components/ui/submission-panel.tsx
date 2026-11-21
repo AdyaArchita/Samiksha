@@ -19,7 +19,7 @@ export function SubmissionPanel({ submission }: { submission: Submission }) {
           href={submission.link}
           target="_blank"
           rel="noreferrer"
-          className="mt-4 block break-all text-sm font-semibold text-foreground underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          className="mt-4 block break-all text-sm font-semibold text-foreground underline underline-offset-2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
         >
           Open submitted link
         </a>
@@ -29,7 +29,7 @@ export function SubmissionPanel({ submission }: { submission: Submission }) {
           href={`/api/files/signed?path=${encodeURIComponent(submission.file_path)}`}
           target="_blank"
           rel="noreferrer"
-          className="mt-3 inline-flex rounded text-sm font-semibold text-foreground underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          className="mt-3 inline-flex rounded text-sm font-semibold text-foreground underline underline-offset-2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
         >
           Download attachment
         </a>
