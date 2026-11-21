@@ -1,0 +1,29 @@
+# Reviewer walkthrough (5-6 minutes)
+
+This is a presentation script, not a record of a completed live demo. The database, RLS, triggers, and private Storage behavior below are **designed behavior from SQL** and remain `[ ] to verify` against the target Supabase project.
+
+## Before starting
+
+Have the app deployed or running locally, one promoted manager, and two member accounts ready. Do not display passwords. Use a task with a due date and a small allowed file or a shareable HTTP(S) link.
+
+## Script
+
+| Time | Clicks and actions | Talking points |
+|---|---|---|
+| 0:00-0:35 | Open `/login`, sign in as the manager, and land on the Manager dashboard. | Signup creates members only; manager status is granted separately by an administrator. The UI role is not the security boundary. |
+| 0:35-1:20 | Click **Create task**; enter title, instructions, choose a member, set the due date, then click **Create task**. Open the new task. | The task insert uses the manager's session. The intended RLS policy binds `manager_id` to the current user and permits only member assignees. The due date is required. |
+| 1:20-2:05 | Sign out, sign in as the assigned member, open the task, read its instructions/date, enter a written response and a link or allowed file, then submit. | The submission action validates inputs and uploads to a private bucket path `{task_id}/{submission_id}/{filename}`. Triggers are designed to assign the version and move the task to Submitted. |
+| 2:05-3:00 | Sign in as the manager; open the task and review its latest submission. Enter specific feedback and click **Request Changes**. | The review UI requires feedback for this decision. The intended before-trigger validates manager ownership, task status, and latest version before the after-trigger updates status. |
+| 3:00-3:45 | Sign in as the member, open the same task, read the feedback, edit the response/file/link, and resubmit. | Resubmission is designed to create a new version while retaining previous submissions and review history. |
+| 3:45-4:25 | Sign in as the manager, open the latest version, and click **Approve**. | Only the latest submission is eligible for review by the task's manager. The status transition is intended to be atomic with the review insert. |
+| 4:25-5:10 | Sign in as the second member and paste the first member's task URL; then sign in as the first member and inspect the task. | The second member should not see the task, submissions, reviews, or signed file. The member view has no approve control; RLS and trigger checks are the intended protection against crafted writes. Verify these manually before presenting them as observed results. |
+| 5:10-5:40 | Optional negative form check: on an open task, submit a written response without a file or link. | The app should block the form action with its friendly validation message, “Add at least one file or link.” This demonstrates input validation, not database RLS. For a database permission demo, use the pgTAP checks and report the actual observed error only after running them. |
+
+## Manual verification
+
+- [ ] to verify: the create/submit/request-changes/resubmit/approve sequence completes in the target environment.
+- [ ] to verify: a second member cannot access the task, submission history, review history, or private file.
+- [ ] to verify: a member cannot approve work and sees an appropriate friendly error if a database-backed denied action reaches the app.
+- [ ] to verify: status changes and version history match the intended trigger behavior.
+
+Do not claim the expected state or error was observed until the corresponding check is run.

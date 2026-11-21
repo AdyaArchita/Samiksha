@@ -1,5 +1,7 @@
 # Phase 2 database failure checklist
 
+The outcomes below are **designed expectations based on migrations 001-004**, not observed database results. Every check remains `[ ] to verify`.
+
 Run these checks in the Supabase SQL Editor only after:
 
 1. Accounts exist for manager A, manager B, member X, and member Y.
@@ -51,7 +53,9 @@ set status = 'approved'
 where id = '<task-uuid>';
 ```
 
-Expected: no row update and a permission error. The status must remain `assigned`.
+Designed expectation: the update is rejected with a permission error and the status remains `assigned`.
+
+- [ ] to verify
 
 ## 2. Second manager reviews another manager's task
 
@@ -84,7 +88,9 @@ insert into public.reviews (
 );
 ```
 
-Expected: RLS `42501`/permission failure. Manager B must not be able to review this task.
+Designed expectation: RLS/trigger rejects the review (the exact runtime SQLSTATE remains to be observed); Manager B cannot review this task.
+
+- [ ] to verify
 
 ## 3. Review on a task that is not submitted
 
@@ -102,7 +108,9 @@ insert into public.reviews (
 );
 ```
 
-Expected: custom `P0001` trigger/RLS failure because the task is not submitted and no submission exists.
+Designed expectation: the trigger rejects the review because the task is not submitted and no submission exists.
+
+- [ ] to verify
 
 ## 4. Member submits on someone else's task
 
@@ -121,7 +129,9 @@ insert into public.submissions (
 );
 ```
 
-Expected: RLS `42501` or custom trigger failure. Member Y cannot submit for member X.
+Designed expectation: RLS or the trigger rejects the insert. Member Y cannot submit for member X.
+
+- [ ] to verify
 
 ## 5. Second submission while status is submitted
 
@@ -140,7 +150,9 @@ insert into public.submissions (
 );
 ```
 
-Expected: custom `P0001` failure. The RLS policy and trigger must both reject it while status is `submitted`.
+Designed expectation: RLS or the trigger rejects the second insert while status is `submitted`.
+
+- [ ] to verify
 
 ## 6. UPDATE or DELETE submissions
 
@@ -155,7 +167,9 @@ delete from public.submissions
 where task_id = '<task-uuid>';
 ```
 
-Expected: permissions failure and no history change.
+Designed expectation: permissions reject both statements and history remains unchanged.
+
+- [ ] to verify
 
 ## 7. UPDATE or DELETE reviews
 
@@ -170,7 +184,9 @@ delete from public.reviews
 where task_id = '<task-uuid>';
 ```
 
-Expected: permissions failure and no review change.
+Designed expectation: permissions reject both statements and review history remains unchanged.
+
+- [ ] to verify
 
 ## 8. Illegal approved/changes-requested transition
 
@@ -188,4 +204,6 @@ insert into public.reviews (
 );
 ```
 
-Expected: custom `P0001` failure. Approved is terminal.
+Designed expectation: the trigger rejects the review because Approved is terminal.
+
+- [ ] to verify

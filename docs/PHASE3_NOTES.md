@@ -1,11 +1,13 @@
 # Phase 3 notes
 
+This document records the app routes and their intended database access. RLS, trigger, and Storage behavior is **designed from migrations 001-004**, not confirmed against a live project. Manual test items below are `[ ] to verify`.
+
 ## Route map
 
 | Route | Purpose | Database access |
 |---|---|---|
 | `/login` | Email/password sign-in | `auth.signInWithPassword`; no table write |
-| `/signup` | Demo member/manager signup | `auth.signUp` metadata; `handle_new_auth_user` creates profile |
+| `/signup` | Member signup | `auth.signUp`; `handle_new_auth_user` creates a member profile |
 | `/dashboard` | Redirects to the role home | Reads own `profiles.role` |
 | `/manager` | Lists owned tasks and creates tasks | `tasks_party_select`; `tasks_manager_insert`; manager member-profile read policy |
 | `/manager/tasks/[id]` | Task history and review controls | `tasks_party_select`, `submissions_party_select`, `reviews_party_select`, `reviews_manager_insert` |
@@ -26,33 +28,33 @@
 
 Set up four accounts: Manager A, Manager B, Member X, and Member Y.
 
-1. Sign up each account. Promote the two managers in SQL or keep role metadata for the demo.
-2. Sign in as Manager A and open `/manager`.
-3. Create a task for Member X with a title, instructions, assignee, and optional due date.
-4. Sign in as Member X and open `/member`. Confirm the task is visible and overdue is marked if applicable.
-5. Open `/member/tasks/[task-id]`, enter a written response, optionally add a link and file, and submit.
-6. Confirm the status becomes `Submitted`.
-7. Sign in as Manager B and confirm the task is not visible or reviewable.
-8. Sign in as Manager A and open `/manager/tasks/[task-id]`.
-9. Request changes with feedback. Confirm status becomes `Changes Requested`.
-10. Sign in as Member X and confirm the feedback banner and revised submission form.
-11. Submit a revised response. Confirm Version 1 remains visible and Version 2 becomes the latest.
-12. Sign in as Manager A and approve Version 2. Confirm status becomes `Approved`.
-13. Sign in as Member X and confirm the submission form is read-only.
-14. Sign in as Member Y and confirm Member X's task and signed file URL are inaccessible.
-15. Attempt crafted direct submissions/reviews/status updates and confirm friendly permission/state failures.
+- [ ] to verify: Sign up each account. New accounts are designed to start as members; promote Manager A and Manager B through the documented SQL profile update.
+- [ ] to verify: Sign in as Manager A and open `/manager`.
+- [ ] to verify: Create a task for Member X with a title, instructions, assignee, and required due date.
+- [ ] to verify: Sign in as Member X, open `/member`, and check the task and due date.
+- [ ] to verify: Open `/member/tasks/[task-id]`, enter a written response and at least one link or file, and submit.
+- [ ] to verify: Observe the intended `Submitted` status.
+- [ ] to verify: Sign in as Manager B and check that the task is not visible or reviewable.
+- [ ] to verify: Sign in as Manager A and open `/manager/tasks/[task-id]`.
+- [ ] to verify: Request changes with feedback and observe the intended `Changes Requested` status.
+- [ ] to verify: Sign in as Member X and check the feedback and revised submission form.
+- [ ] to verify: Submit a revised response and check that Version 1 remains visible and Version 2 is latest.
+- [ ] to verify: Sign in as Manager A and approve Version 2; observe the intended `Approved` status.
+- [ ] to verify: Sign in as Member X and check that no further submission is offered.
+- [ ] to verify: Sign in as Member Y and check that Member X's task and signed file URL are inaccessible.
+- [ ] to verify: Attempt crafted direct submissions/reviews/status updates and record the actual friendly permission/state failures.
+
+The pgTAP assertions for task creation, submission versions, reviews, append-only history, and cross-member task/submission/review/storage access are in `supabase/tests/workflow_rls.test.sql`. They have not been run.
 
 ## Database error mapping
 
-- `42501`: permission denied by RLS or privileges.
-- `P0001`: invalid task transition or trigger rule.
-- `23505`: duplicate submission/review/history row.
+- `42501`: designed mapping for permission denied by RLS or privileges.
+- `P0001`: designed mapping that displays the database trigger message for an invalid transition/rule.
+- `23505`: designed mapping for a duplicate submission/review/history row.
 
-The app logs database error codes and shows friendly text rather than raw SQL errors.
+The app is designed to log database error codes and show friendly text rather than raw SQL errors; database error paths are not verified.
 
 ## Could not verify
 
-- No live Supabase project was connected.
-- No migrations or signup flows were executed.
-- RLS and storage behavior cannot be proven until 001-005 are applied and test accounts exist.
-- Email confirmation and Vercel redirect behavior require live dashboard configuration.
+- [ ] to verify: no migration, signup flow, RLS policy, trigger, or Storage behavior has yet been exercised against a live Supabase project.
+- [ ] to verify: email confirmation and Vercel redirect behavior after configuring the project dashboard.
