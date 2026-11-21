@@ -40,6 +40,78 @@ export function parseTaskFilter(value?: string | string[]): TaskFilter {
   return "all";
 }
 
+export function getTaskDueInfo(
+  dueDate: string | null,
+  status: TaskStatus,
+  today: string,
+): {
+  formattedDate: string | null;
+  relativeLabel: string | null;
+  overdue: boolean;
+} {
+  if (!dueDate) {
+    return { formattedDate: null, relativeLabel: null, overdue: false };
+  }
+
+  const dueTimestamp = Date.parse(`${dueDate}T00:00:00.000Z`);
+  const todayTimestamp = Date.parse(`${today}T00:00:00.000Z`);
+  if (!Number.isFinite(dueTimestamp) || !Number.isFinite(todayTimestamp)) {
+    return { formattedDate: dueDate, relativeLabel: null, overdue: false };
+  }
+
+  const daysUntil = Math.round((dueTimestamp - todayTimestamp) / 86_400_000);
+  const overdue = status !== "approved" && daysUntil < 0;
+  const relativeLabel = overdue
+    ? `Overdue by ${Math.abs(daysUntil)} ${Math.abs(daysUntil) === 1 ? "day" : "days"}`
+    : daysUntil < 0
+      ? null
+      : daysUntil === 0
+        ? "today"
+        : daysUntil === 1
+          ? "tomorrow"
+          : `in ${daysUntil} days`;
+
+  return {
+    formattedDate: new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      timeZone: "UTC",
+    }).format(dueTimestamp),
+    relativeLabel,
+    overdue,
+  };
+}
+
+export function formatRelativeTime(timestamp: string, now: string): string | null {
+  const elapsedSeconds = Math.floor((Date.parse(now) - Date.parse(timestamp)) / 1000);
+  if (!Number.isFinite(elapsedSeconds)) return null;
+  if (elapsedSeconds < 60) return "just now";
+
+  const elapsedMinutes = Math.floor(elapsedSeconds / 60);
+  if (elapsedMinutes < 60) {
+    return `${elapsedMinutes} ${elapsedMinutes === 1 ? "minute" : "minutes"} ago`;
+  }
+
+  const elapsedHours = Math.floor(elapsedMinutes / 60);
+  if (elapsedHours < 24) {
+    return `${elapsedHours} ${elapsedHours === 1 ? "hour" : "hours"} ago`;
+  }
+
+  const elapsedDays = Math.floor(elapsedHours / 24);
+  if (elapsedDays < 30) {
+    return `${elapsedDays} ${elapsedDays === 1 ? "day" : "days"} ago`;
+  }
+
+  const elapsedMonths = Math.floor(elapsedDays / 30);
+  if (elapsedMonths < 12) {
+    return `${elapsedMonths} ${elapsedMonths === 1 ? "month" : "months"} ago`;
+  }
+
+  const elapsedYears = Math.floor(elapsedMonths / 12);
+  return `${elapsedYears} ${elapsedYears === 1 ? "year" : "years"} ago`;
+}
+
 export function countTaskStatuses(tasks: Task[]): Record<TaskStatus, number> {
   return tasks.reduce(
     (counts, task) => {

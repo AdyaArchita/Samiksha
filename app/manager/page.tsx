@@ -43,18 +43,16 @@ async function ManagerDashboard({ searchParams }: ManagerPageProps) {
   ]);
   if (tasksResult.error) logDatabaseError(tasksResult.error, tasksResult.error.code);
   if (membersResult.error) logDatabaseError(membersResult.error, membersResult.error.code);
-
   const tasks = (tasksResult.data ?? []) as Task[];
   const members = (membersResult.data ?? []) as Profile[];
+  const now = new Date().toISOString();
   const displayName =
     typeof user.user_metadata?.full_name === "string"
     && user.user_metadata.full_name.trim()
       ? user.user_metadata.full_name
       : "there";
-  const today = new Date().toISOString().slice(0, 10);
-  const memberNames = new Map(
-    members.map((member) => [member.id, member.full_name || member.email]),
-  );
+  const today = now.slice(0, 10);
+  const membersById = new Map(members.map((member) => [member.id, member]));
   const counts = countTaskStatuses(tasks);
   const visibleTasks = filterTasks(sortTasks(tasks, "manager"), filter);
   const reviewTasks = tasks.filter((task) => task.status === "submitted");
@@ -117,7 +115,9 @@ async function ManagerDashboard({ searchParams }: ManagerPageProps) {
                       task={task}
                       href={`/manager/tasks/${task.id}`}
                       today={today}
-                      assigneeName={memberNames.get(task.assignee_id)}
+                      now={now}
+                      assigneeName={membersById.get(task.assignee_id)?.full_name || undefined}
+                      assigneeEmail={membersById.get(task.assignee_id)?.email}
                     />
                   </div>
                 ))}
@@ -172,7 +172,9 @@ async function ManagerDashboard({ searchParams }: ManagerPageProps) {
                     task={task}
                     href={`/manager/tasks/${task.id}`}
                     today={today}
-                    assigneeName={memberNames.get(task.assignee_id)}
+                    now={now}
+                    assigneeName={membersById.get(task.assignee_id)?.full_name || undefined}
+                    assigneeEmail={membersById.get(task.assignee_id)?.email}
                   />
                 ))}
               </div>

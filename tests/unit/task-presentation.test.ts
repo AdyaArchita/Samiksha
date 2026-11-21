@@ -3,6 +3,8 @@ import {
   buildTaskHistory,
   countTaskStatuses,
   filterTasks,
+  formatRelativeTime,
+  getTaskDueInfo,
   parseTaskFilter,
   sortTasks,
 } from "../../lib/task-presentation";
@@ -21,6 +23,32 @@ const task = (id: string, status: Task["status"]): Task => ({
 });
 
 describe("task presentation helpers", () => {
+  it.each([
+    ["today", "2026-11-21", "assigned", "Nov 21, 2026", "today", false],
+    ["tomorrow", "2026-11-22", "assigned", "Nov 22, 2026", "tomorrow", false],
+    ["future", "2026-11-28", "assigned", "Nov 28, 2026", "in 7 days", false],
+    ["overdue", "2026-11-19", "changes_requested", "Nov 19, 2026", "Overdue by 2 days", true],
+    ["approved", "2026-11-19", "approved", "Nov 19, 2026", null, false],
+  ] as const)(
+    "formats the %s due state consistently",
+    (_case, dueDate, status, formattedDate, relativeLabel, overdue) => {
+      expect(getTaskDueInfo(dueDate, status, "2026-11-21")).toMatchObject({
+        formattedDate,
+        relativeLabel,
+        overdue,
+      });
+    },
+  );
+
+  it("formats update timestamps relatively", () => {
+    expect(
+      formatRelativeTime(
+        "2026-11-19T10:00:00.000Z",
+        "2026-11-21T10:00:00.000Z",
+      ),
+    ).toBe("2 days ago");
+  });
+
   it("parses supported status filters and falls back to all", () => {
     expect(parseTaskFilter("changes_requested")).toBe("changes_requested");
     expect(parseTaskFilter(["approved", "assigned"])).toBe("approved");

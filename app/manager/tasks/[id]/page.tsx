@@ -9,7 +9,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { TaskDetailLayout } from "@/components/ui/task-detail-layout";
 import { TaskDetailSkeleton } from "@/components/ui/skeletons";
 import { SubmissionPanel } from "@/components/ui/submission-panel";
-import { buildTaskHistory } from "@/lib/task-presentation";
+import { buildTaskHistory, getTaskDueInfo } from "@/lib/task-presentation";
 import { canTransitionTaskStatus } from "@/lib/task-rules";
 import { requireRole } from "@/lib/auth";
 import { ReviewForm } from "./review-form";
@@ -62,7 +62,7 @@ async function ManagerTaskContent({ params }: ManagerTaskPageProps) {
   const task = taskData as Task;
   if (task.manager_id !== user.id) notFound();
   const today = new Date().toISOString().slice(0, 10);
-  const overdue = task.status !== "approved" && task.due_date < today;
+  const overdue = getTaskDueInfo(task.due_date, task.status, today).overdue;
 
   const [submissionsResult, reviewsResult] = await Promise.all([
     supabase

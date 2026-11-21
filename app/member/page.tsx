@@ -35,12 +35,13 @@ async function MemberTaskList({ searchParams }: MemberPageProps) {
 
   if (error) logDatabaseError(error, error.code);
   const tasks = (tasksData ?? []) as Task[];
+  const now = new Date().toISOString();
   const displayName =
     typeof user.user_metadata?.full_name === "string"
     && user.user_metadata.full_name.trim()
       ? user.user_metadata.full_name
       : "there";
-  const today = new Date().toISOString().slice(0, 10);
+  const today = now.slice(0, 10);
   const counts = countTaskStatuses(tasks);
   const visibleTasks = filterTasks(sortTasks(tasks, "member"), filter);
 
@@ -102,6 +103,7 @@ async function MemberTaskList({ searchParams }: MemberPageProps) {
                     task={task}
                     href={`/member/tasks/${task.id}`}
                     today={today}
+                    now={now}
                   />
                 ))}
               </div>
