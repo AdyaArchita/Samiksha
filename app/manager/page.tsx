@@ -8,10 +8,7 @@ import { CreateTaskForm } from "./create-task-form";
 import { EmptyState } from "@/components/ui/empty-state";
 import { DashboardSkeleton } from "@/components/ui/skeletons";
 import { TaskCard } from "@/components/ui/task-card";
-import {
-  TaskFilterTabs,
-  TaskStatusSummary,
-} from "@/components/ui/task-status-summary";
+import { TaskStatusSummary } from "@/components/ui/task-status-summary";
 import { requireRole } from "@/lib/auth";
 import {
   countTaskStatuses,
@@ -65,7 +62,6 @@ async function ManagerDashboard({ searchParams }: ManagerPageProps) {
     <div className="space-y-7">
       <section className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="text-xs font-medium text-muted">Manager workspace</p>
           <h2 className="mt-1 text-lg font-semibold text-foreground">Welcome back, {displayName}</h2>
           <p className="mt-1 text-sm text-muted">Create assignments and keep reviews moving.</p>
         </div>
@@ -97,7 +93,6 @@ async function ManagerDashboard({ searchParams }: ManagerPageProps) {
             counts={counts}
             selected={filter}
           />
-          <TaskFilterTabs pathname="/manager" selected={filter} />
           <section aria-labelledby="manager-tasks-heading">
             <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
               <div>
@@ -108,9 +103,19 @@ async function ManagerDashboard({ searchParams }: ManagerPageProps) {
                   Submitted work is prioritized for review.
                 </p>
               </div>
-              <p className="tabular text-xs text-muted">
-                {visibleTasks.length} {visibleTasks.length === 1 ? "task" : "tasks"}
-              </p>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                <p className="tabular text-xs text-muted">
+                  {visibleTasks.length} {visibleTasks.length === 1 ? "task" : "tasks"}
+                </p>
+                {filter !== "all" && (
+                  <Link
+                    href="/manager"
+                    className="rounded text-sm text-accent hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
+                  >
+                    Show all tasks
+                  </Link>
+                )}
+              </div>
             </div>
             {tasks.length === 0 ? (
               <EmptyState title="No tasks created yet">
@@ -139,14 +144,6 @@ async function ManagerDashboard({ searchParams }: ManagerPageProps) {
             )}
           </section>
         </>
-      )}
-      {filter !== "all" && (
-        <p className="text-sm text-muted">
-          Need a quick overview?{" "}
-          <Link href="/manager" className="rounded font-medium text-foreground underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">
-            View all tasks
-          </Link>
-        </p>
       )}
     </div>
   );

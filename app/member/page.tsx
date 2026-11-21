@@ -1,15 +1,13 @@
 import { Suspense } from "react";
 import { connection } from "next/server";
+import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { logDatabaseError } from "@/lib/errors";
 import { AppShell } from "@/components/app-shell";
 import { EmptyState } from "@/components/ui/empty-state";
 import { DashboardSkeleton } from "@/components/ui/skeletons";
 import { TaskCard } from "@/components/ui/task-card";
-import {
-  TaskFilterTabs,
-  TaskStatusSummary,
-} from "@/components/ui/task-status-summary";
+import { TaskStatusSummary } from "@/components/ui/task-status-summary";
 import { requireRole } from "@/lib/auth";
 import {
   countTaskStatuses,
@@ -49,7 +47,6 @@ async function MemberTaskList({ searchParams }: MemberPageProps) {
   return (
     <div className="space-y-7">
       <section>
-        <p className="text-xs font-medium text-muted">Member workspace</p>
         <h2 className="mt-1 text-lg font-semibold text-foreground">Welcome back, {displayName}</h2>
         <p className="mt-1 text-sm text-muted">Your work and review feedback, all in one place.</p>
       </section>
@@ -65,7 +62,6 @@ async function MemberTaskList({ searchParams }: MemberPageProps) {
             counts={counts}
             selected={filter}
           />
-          <TaskFilterTabs pathname="/member" selected={filter} />
           <section aria-labelledby="member-tasks-heading">
             <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
               <div>
@@ -76,9 +72,19 @@ async function MemberTaskList({ searchParams }: MemberPageProps) {
                   Tasks needing your attention are shown first.
                 </p>
               </div>
-              <p className="tabular text-xs text-muted">
-                {visibleTasks.length} {visibleTasks.length === 1 ? "task" : "tasks"}
-              </p>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                <p className="tabular text-xs text-muted">
+                  {visibleTasks.length} {visibleTasks.length === 1 ? "task" : "tasks"}
+                </p>
+                {filter !== "all" && (
+                  <Link
+                    href="/member"
+                    className="rounded text-sm text-accent hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
+                  >
+                    Show all tasks
+                  </Link>
+                )}
+              </div>
             </div>
             {tasks.length === 0 ? (
               <EmptyState title="No tasks assigned yet">
