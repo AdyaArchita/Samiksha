@@ -31,27 +31,14 @@ export function ReviewForm({
           Approve
         </button>
         <button
-          type="button"
+          name="decision"
+          value="changes_requested"
           disabled={pending}
           onClick={(event) => {
-            const form = event.currentTarget.form;
-            if (!form) return;
-            const feedback = (form.elements.namedItem("feedback") as HTMLTextAreaElement).value.trim();
-            if (!feedback) {
+            const feedback = event.currentTarget.form?.elements.namedItem("feedback");
+            if (!(feedback instanceof HTMLTextAreaElement) || !feedback.value.trim()) {
+              event.preventDefault();
               window.alert("Written feedback is required when requesting changes.");
-              return;
-            }
-            const decision = (form.elements.namedItem("decision") as HTMLInputElement | null);
-            if (decision) {
-              decision.value = "changes_requested";
-              form.requestSubmit();
-            } else {
-              const input = document.createElement("input");
-              input.type = "hidden";
-              input.name = "decision";
-              input.value = "changes_requested";
-              form.append(input);
-              form.requestSubmit();
             }
           }}
           className="rounded-md bg-amber-700 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"

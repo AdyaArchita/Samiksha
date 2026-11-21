@@ -19,13 +19,6 @@ export async function reviewSubmission(
   if (!parsed.success) {
     return { error: "Select a valid decision and add feedback when requesting changes." };
   }
-  if (
-    parsed.data.decision === "changes_requested"
-    && (!parsed.data.feedback || parsed.data.feedback.trim() === "")
-  ) {
-    return { error: "Written feedback is required when requesting changes." };
-  }
-
   const supabase = await createSupabaseServerClient();
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) return { error: "Sign in again to review this submission." };

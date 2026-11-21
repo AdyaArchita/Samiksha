@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/app-shell";
 import { StatusBadge } from "@/components/status-badge";
 import { SubmissionForm } from "./submission-form";
+import { canTransitionTaskStatus } from "@/lib/task-rules";
 import type { Review, Submission, Task } from "@/lib/types";
 
 export default async function MemberTaskPage({
@@ -43,7 +44,7 @@ export default async function MemberTaskPage({
     && latestReview?.decision === "changes_requested"
       ? latestReview.feedback
       : null;
-  const canSubmit = task.status === "assigned" || task.status === "changes_requested";
+  const canSubmit = canTransitionTaskStatus(task.status, "submitted");
 
   return (
     <AppShell title={task.title}>

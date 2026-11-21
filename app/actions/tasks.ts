@@ -14,7 +14,7 @@ export async function createTask(
   const parsed = createTaskSchema.safeParse({
     title: formData.get("title"),
     instructions: formData.get("instructions"),
-    dueDate: formData.get("dueDate") || undefined,
+    dueDate: formData.get("dueDate"),
     assigneeId: formData.get("assigneeId"),
   });
   if (!parsed.success) {
@@ -28,8 +28,7 @@ export async function createTask(
   const { error } = await supabase.from("tasks").insert({
     title: parsed.data.title,
     instructions: parsed.data.instructions,
-    due_date: parsed.data.dueDate ?? null,
-    status: "assigned",
+    due_date: parsed.data.dueDate,
     manager_id: auth.user.id,
     assignee_id: parsed.data.assigneeId,
   });

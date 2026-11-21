@@ -13,7 +13,7 @@ export type Task = {
   id: string;
   title: string;
   instructions: string;
-  due_date: string | null;
+  due_date: string;
   status: TaskStatus;
   manager_id: string;
   assignee_id: string;

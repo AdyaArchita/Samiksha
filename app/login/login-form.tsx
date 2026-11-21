@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { login, type AuthActionState } from "@/app/actions/auth";
 
-export function LoginForm() {
+export function LoginForm({ initialError }: { initialError?: string }) {
   const [state, action, pending] = useActionState<AuthActionState, FormData>(
     login,
     undefined,
@@ -15,9 +15,9 @@ export function LoginForm() {
         <h1 className="text-2xl font-semibold">Sign in</h1>
         <p className="mt-1 text-sm text-zinc-600">Access your assigned work or managed tasks.</p>
       </div>
-      {state?.error && (
+      {(state?.error ?? initialError) && (
         <p role="alert" className="rounded-md bg-red-50 p-3 text-sm text-red-700">
-          {state.error}
+          {state?.error ?? initialError}
         </p>
       )}
       <label className="block text-sm font-medium">

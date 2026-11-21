@@ -37,10 +37,9 @@ export async function signup(
     fullName: formData.get("fullName"),
     email: formData.get("email"),
     password: formData.get("password"),
-    role: formData.get("role"),
   });
   if (!parsed.success) {
-    return { error: "Check the name, email, password, and demo role." };
+    return { error: "Check the name, email, and password." };
   }
 
   const supabase = await createSupabaseServerClient();
@@ -50,7 +49,6 @@ export async function signup(
     options: {
       data: {
         full_name: parsed.data.fullName,
-        role: parsed.data.role,
       },
     },
   });
@@ -64,6 +62,10 @@ export async function signup(
 
 export async function signOut() {
   const supabase = await createSupabaseServerClient();
-  await supabase.auth.signOut();
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    logDatabaseError(error, error.code);
+    redirect(`/login?error=${encodeURIComponent(friendlyPostgresError(error))}`);
+  }
   redirect("/login");
 }

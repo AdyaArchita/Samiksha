@@ -40,8 +40,8 @@ export function CreateTaskForm({ members }: { members: Profile[] }) {
           )}
         </label>
         <label className="text-sm font-medium">
-          Due date
-          <input name="dueDate" type="date" className="mt-1 w-full rounded-md border px-3 py-2" />
+          Due date (required)
+          <input name="dueDate" type="date" required className="mt-1 w-full rounded-md border px-3 py-2" />
         </label>
         <button disabled={pending || members.length === 0} className="rounded-md bg-zinc-950 px-4 py-2 font-medium text-white disabled:opacity-50 sm:col-span-2">
           {pending ? "Creating..." : "Create task"}

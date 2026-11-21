@@ -1,4 +1,9 @@
 import { z } from "zod";
+import {
+  isValidHttpLink,
+  isAllowedSubmissionMimeType,
+  maxSubmissionFileBytes,
+} from "./task-rules";
 
 export const loginSchema = z.object({
   email: z.email().trim(),
@@ -9,7 +14,6 @@ export const signupSchema = z.object({
   fullName: z.string().trim().min(2).max(80),
   email: z.email().trim(),
   password: z.string().min(8).max(72),
-  role: z.enum(["manager", "member"]),
 });
 
 export const createTaskSchema = z.object({
@@ -18,10 +22,11 @@ export const createTaskSchema = z.object({
   dueDate: z
     .string()
     .trim()
-    .optional()
-    .refine((value) => !value || /^\d{4}-\d{2}-\d{2}$/.test(value), {
-      message: "Enter a valid due date.",
-    }),
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Enter a valid due date.")
+    .refine((value) => {
+      const date = new Date(`${value}T00:00:00.000Z`);
+      return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
+    }, "Enter a valid due date."),
   assigneeId: z.uuid(),
 });
 
@@ -33,9 +38,30 @@ export const submissionSchema = z.object({
     .trim()
     .optional()
     .refine(
-      (value) => !value || /^https?:\/\//i.test(value),
-      "Use an http:// or https:// link.",
+      (value) => !value || isValidHttpLink(value),
+      "Use a valid http:// or https:// link.",
     ),
+  hasFile: z.boolean().optional(),
+}).superRefine((value, context) => {
+  if (!value.link && !value.hasFile) {
+    context.addIssue({
+      code: "custom",
+      path: ["link"],
+      message: "Add at least one file or link.",
+    });
+  }
+});
+
+export const submissionFileSchema = z.object({
+  size: z
+    .number()
+    .int()
+    .positive("Choose a non-empty file.")
+    .max(maxSubmissionFileBytes, "Files must be 5 MB or smaller."),
+  type: z.string().refine(
+      isAllowedSubmissionMimeType,
+    "This file type is not allowed.",
+  ),
 });
 
 export const reviewSchema = z.object({
@@ -43,4 +69,12 @@ export const reviewSchema = z.object({
   submissionId: z.uuid(),
   decision: z.enum(["approved", "changes_requested"]),
   feedback: z.string().trim().max(5000).optional(),
+}).superRefine((value, context) => {
+  if (value.decision === "changes_requested" && !value.feedback) {
+    context.addIssue({
+      code: "custom",
+      path: ["feedback"],
+      message: "Written feedback is required when requesting changes.",
+    });
+  }
 });

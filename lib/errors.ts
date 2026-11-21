@@ -1,5 +1,6 @@
 type PostgresErrorLike = {
   code?: string;
+  message?: string;
 };
 
 export function friendlyPostgresError(error: unknown): string {
@@ -9,16 +10,20 @@ export function friendlyPostgresError(error: unknown): string {
       : undefined;
 
   if (code === "42501") {
-    return "You do not have permission to perform this action.";
+    return "You don't have permission to do that.";
   }
   if (code === "P0001") {
-    return "This action is not allowed in the task's current state.";
+    const message =
+      typeof error === "object" && error !== null
+        ? (error as PostgresErrorLike).message
+        : undefined;
+    return message?.trim() || "This action is not allowed.";
   }
   if (code === "23505") {
-    return "This item has already been submitted or reviewed.";
+    return "This version was already submitted, please refresh.";
   }
 
-  return "The action could not be completed. Please try again.";
+  return "Something went wrong. Please try again.";
 }
 
 export function logDatabaseError(error: unknown, code?: string) {

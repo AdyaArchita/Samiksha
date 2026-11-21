@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/app-shell";
 import { StatusBadge } from "@/components/status-badge";
 import { ReviewForm } from "./review-form";
+import { canTransitionTaskStatus } from "@/lib/task-rules";
 import type { Review, Submission, Task } from "@/lib/types";
 
 export default async function ManagerTaskPage({
@@ -55,7 +56,10 @@ export default async function ManagerTaskPage({
         </p>
       </section>
 
-      {task.status === "submitted" && latest && (
+      {(
+        canTransitionTaskStatus(task.status, "approved")
+        || canTransitionTaskStatus(task.status, "changes_requested")
+      ) && latest && (
         <section className="mt-6">
           <h2 className="mb-2 text-lg font-semibold">Review latest submission</h2>
           <ReviewForm taskId={task.id} submissionId={latest.id} />

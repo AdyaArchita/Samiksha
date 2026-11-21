@@ -28,6 +28,9 @@ export function SubmissionForm({
       {state?.success && <p role="status" className="mb-3 rounded-md bg-emerald-50 p-3 text-sm text-emerald-700">{state.success}</p>}
       <form action={action} className="space-y-4">
         <input type="hidden" name="taskId" value={taskId} />
+        <p className="text-sm text-zinc-600">
+          Include at least one file or link with your written response.
+        </p>
         <label className="block text-sm font-medium">
           Written response
           <textarea name="body" required rows={6} maxLength={10000} className="mt-1 w-full rounded-md border px-3 py-2" />
