@@ -8,17 +8,30 @@ alter table public.reviews enable row level security;
 
 grant usage on schema public to authenticated;
 grant select on public.profiles to authenticated;
-grant select, insert on public.tasks to authenticated;
-grant select, insert on public.submissions to authenticated;
-grant select, insert on public.reviews to authenticated;
+grant select on public.tasks to authenticated;
+grant select on public.submissions to authenticated;
+grant select on public.reviews to authenticated;
 
--- Profiles: users see themselves. Managers see members for assignment.
--- Members see the manager profile only on tasks assigned to them.
+-- Column-level INSERT grants prevent clients from supplying state or timestamps.
+revoke insert on public.tasks from authenticated;
+revoke insert on public.submissions from authenticated;
+revoke insert on public.reviews from authenticated;
+grant insert (title, instructions, due_date, manager_id, assignee_id)
+  on public.tasks to authenticated;
+grant insert (id, task_id, author_id, body, link, file_path)
+  on public.submissions to authenticated;
+grant insert (task_id, submission_id, reviewer_id, decision, feedback)
+  on public.reviews to authenticated;
+
+-- Profiles: users see their own profile.
+drop policy if exists "profiles_self_select" on public.profiles;
 create policy "profiles_self_select"
 on public.profiles for select
 to authenticated
 using (id = (select auth.uid()));
 
+-- Managers can read member profiles to populate the task assignee picker.
+drop policy if exists "profiles_managers_read_members" on public.profiles;
 create policy "profiles_managers_read_members"
 on public.profiles for select
 to authenticated
@@ -27,6 +40,8 @@ using (
   and public.is_manager()
 );
 
+-- Members can read the manager profile on tasks assigned to them.
+drop policy if exists "profiles_read_own_task_manager" on public.profiles;
 create policy "profiles_read_own_task_manager"
 on public.profiles for select
 to authenticated
@@ -39,7 +54,8 @@ using (
   )
 );
 
--- Tasks: managers see owned work; members see only assigned work.
+-- Task parties can see a task; this shows managers only their work and members only assignments.
+drop policy if exists "tasks_party_select" on public.tasks;
 create policy "tasks_party_select"
 on public.tasks for select
 to authenticated
@@ -48,7 +64,8 @@ using (
   or assignee_id = (select auth.uid())
 );
 
--- Tasks: only managers may create them, owned by themselves, for members.
+-- Only managers can create assigned tasks owned by themselves and assigned to members.
+drop policy if exists "tasks_manager_insert" on public.tasks;
 create policy "tasks_manager_insert"
 on public.tasks for insert
 to authenticated
@@ -64,23 +81,17 @@ with check (
   )
 );
 
--- Submission history: only the two parties on the task may read it.
+-- Only the manager and assignee can read a task's submission history.
+drop policy if exists "submissions_party_select" on public.submissions;
 create policy "submissions_party_select"
 on public.submissions for select
 to authenticated
 using (
-  exists (
-    select 1
-    from public.tasks
-    where id = submissions.task_id
-      and (
-        manager_id = (select auth.uid())
-        or assignee_id = (select auth.uid())
-      )
-  )
+  public.is_task_party(task_id)
 );
 
--- Submission inserts: author must be assignee and task must accept a submission.
+-- Only the assigned member can submit while the task accepts submissions.
+drop policy if exists "submissions_assignee_insert" on public.submissions;
 create policy "submissions_assignee_insert"
 on public.submissions for insert
 to authenticated
@@ -95,23 +106,17 @@ with check (
   )
 );
 
--- Reviews: only task parties can read history.
+-- Only the manager and assignee can read review history.
+drop policy if exists "reviews_party_select" on public.reviews;
 create policy "reviews_party_select"
 on public.reviews for select
 to authenticated
 using (
-  exists (
-    select 1
-    from public.tasks
-    where id = reviews.task_id
-      and (
-        manager_id = (select auth.uid())
-        or assignee_id = (select auth.uid())
-      )
-  )
+  public.is_task_party(task_id)
 );
 
--- Reviews: only the owner manager may review the latest submission while submitted.
+-- Only the owner manager may review the latest submission while it is submitted.
+drop policy if exists "reviews_manager_insert" on public.reviews;
 create policy "reviews_manager_insert"
 on public.reviews for insert
 to authenticated
