@@ -28,7 +28,7 @@ async function ManagerTaskTitle({ params }: ManagerTaskPageProps) {
     .from("tasks")
     .select("id, title, manager_id")
     .eq("id", id)
-    .single();
+    .maybeSingle();
 
   if (error) {
     logDatabaseError(error, error.code);
@@ -47,7 +47,7 @@ async function ManagerTaskContent({ params }: ManagerTaskPageProps) {
     .from("tasks")
     .select("*")
     .eq("id", id)
-    .single();
+    .maybeSingle();
 
   if (taskError) {
     logDatabaseError(taskError, taskError.code);

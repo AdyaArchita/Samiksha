@@ -28,7 +28,7 @@ async function MemberTaskTitle({ params }: MemberTaskPageProps) {
     .from("tasks")
     .select("id, title, assignee_id")
     .eq("id", id)
-    .single();
+    .maybeSingle();
 
   if (error) {
     logDatabaseError(error, error.code);
@@ -47,7 +47,7 @@ async function MemberTaskContent({ params }: MemberTaskPageProps) {
     .from("tasks")
     .select("*")
     .eq("id", id)
-    .single();
+    .maybeSingle();
 
   if (taskError) {
     logDatabaseError(taskError, taskError.code);
