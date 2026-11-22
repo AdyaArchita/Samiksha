@@ -22,7 +22,7 @@ assigned -> submitted -> approved
                      \-> changes_requested -> submitted
 ```
 
-The UI labels these states Assigned, Submitted, Approved, and Changes Requested. The state-transition triggers and RLS policies are **designed behavior based on SQL**; they have not been tested against a Supabase project. See [TESTING.md](./TESTING.md); manual checks are `[ ] to verify`.
+The UI labels these states Assigned, Submitted, Approved, and Changes Requested. The state-transition triggers and RLS policies are **designed behavior based on SQL**; they have not been tested against a Supabase project. See [TESTING.md](./docs/TESTING.md); manual checks are `[ ] to verify`.
 
 The brief says, “The member submits a written response and can attach a file or add a link” (Project - 1.pdf, p. 1). Accordingly, the written response is required; a file and a link are each optional.
 
@@ -102,7 +102,7 @@ docs/                   Earlier phase access, audit, and route notes
 
 ## Tests and verification
 
-Run pure unit tests, lint, and production build with `npm test`, `npm run lint`, and `npm run build`. The pgTAP suite is in `supabase/tests/workflow_rls.test.sql`; it has **not** been run. Follow [TESTING.md](./TESTING.md) for the automated/manual coverage map and steps. No live database, storage policy, Vercel deployment, or end-to-end account flow was verified.
+Run pure unit tests, lint, and production build with `npm test`, `npm run lint`, and `npm run build`. The pgTAP suite is in `supabase/tests/workflow_rls.test.sql`; it has **not** been run. Follow [TESTING.md](./docs/TESTING.md) for the automated/manual coverage map and steps. No live database, storage policy, Vercel deployment, or end-to-end account flow was verified.
 
 ## Test accounts
 
@@ -110,7 +110,7 @@ Demo account credentials are shared privately with the reviewer and are never st
 
 ## Deployment
 
-See [DEPLOYMENT.md](./DEPLOYMENT.md). No live URL is available yet.
+See [DEPLOYMENT.md](./docs/DEPLOYMENT.md). No live URL is available yet.
 
 ## Future Improvements
 

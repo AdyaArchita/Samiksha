@@ -38,5 +38,5 @@ All rows below describe the **intended behavior based on migrations 001-004**. T
 ## Verification state
 
 - [ ] to verify: apply the migrations in order to the intended Supabase project.
-- [ ] to verify: run the SQL tests and manual checks in [../TESTING.md](../TESTING.md).
+- [ ] to verify: run the SQL tests and manual checks in [TESTING.md](./TESTING.md).
 - [ ] to verify: confirm the RLS, trigger, and private-storage behavior with real test accounts.
