@@ -37,7 +37,7 @@ yarn-error.log*
 # vercel
 .vercel
 
-# typescript
+# TypeScript build metadata, including tsconfig.tsbuildinfo
 *.tsbuildinfo
 next-env.d.ts
 
