@@ -24,9 +24,27 @@ export function TaskListControls({
       method="get"
       className="flex flex-wrap items-end gap-3"
     >
-      {status !== "all" && (
-        <input type="hidden" name="status" value={status} />
-      )}
+      <div>
+        <label
+          htmlFor="task-status"
+          className="text-sm font-medium text-foreground"
+        >
+          Filter by status
+        </label>
+        <select
+          id="task-status"
+          name="status"
+          value={status}
+          onChange={(event) => event.currentTarget.form?.requestSubmit()}
+          className="mt-1 min-h-11 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
+        >
+          <option value="all">All statuses</option>
+          <option value="assigned">Assigned</option>
+          <option value="submitted">Submitted</option>
+          <option value="changes_requested">Changes requested</option>
+          <option value="approved">Approved</option>
+        </select>
+      </div>
       <div className="min-w-[14rem] flex-1">
         <label
           htmlFor="task-search"

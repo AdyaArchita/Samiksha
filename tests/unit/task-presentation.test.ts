@@ -78,7 +78,10 @@ describe("task presentation helpers", () => {
   });
 
   it("parses supported status filters and falls back to all", () => {
+    expect(parseTaskFilter("assigned")).toBe("assigned");
+    expect(parseTaskFilter("submitted")).toBe("submitted");
     expect(parseTaskFilter("changes_requested")).toBe("changes_requested");
+    expect(parseTaskFilter("approved")).toBe("approved");
     expect(parseTaskFilter(["approved", "assigned"])).toBe("approved");
     expect(parseTaskFilter("unknown")).toBe("all");
   });
