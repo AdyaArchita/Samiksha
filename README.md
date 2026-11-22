@@ -82,7 +82,7 @@ Run the statement only for the intended account, after its profile exists. The a
 
 - Submissions and reviews are append-only for authenticated users; the database design rejects UPDATE and DELETE.
 - Triggers assign submission versions and change task status in the same transaction as accepted submissions/reviews.
-- The `submission-files` bucket is private. The signed-file route requires a signed-in user and creates the signed URL with that user's session. The Storage RLS policy is intended to enforce object access when the URL is created; this behavior has not yet been observed against a real Supabase project.
+- The `submission-files` bucket is private. The signed-file route validates the task/submission path, confirms the signed-in user is a task party, and matches the exact stored submission path before creating a five-minute signed URL with that user's session. Storage RLS also enforces object access when the URL is created; this behavior has not yet been observed against a real Supabase project.
 - Object paths use `{task_id}/{submission_id}/{filename}` so the storage policy can bind an object to its task.
 - Upload occurs before the submission row is inserted. If the upload succeeds and the database insert fails, an orphan object is possible; cleanup is a known manual limitation.
 - `profiles.id` references `auth.users.id` with `ON DELETE RESTRICT`. Accounts with task/history references cannot be deleted from the dashboard until those references are deliberately handled.
@@ -110,3 +110,10 @@ Demo account credentials are shared privately with the reviewer and are never st
 ## Deployment
 
 See [DEPLOYMENT.md](./DEPLOYMENT.md). No live URL is available yet.
+
+## Future Improvements
+
+- Chat between managers and members
+- Email notifications
+- Multi-manager teams
+- RBAC administration
