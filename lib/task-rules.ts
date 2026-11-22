@@ -57,6 +57,33 @@ export function isValidSubmissionFile(size: number, mimeType: string): boolean {
   );
 }
 
+export function parseSubmissionStoragePath(
+  path: string,
+): { taskId: string; submissionId: string } | null {
+  const uuid = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
+  const match = new RegExp(`^(${uuid})/(${uuid})/([a-z0-9._-]+)$`, "i").exec(path);
+  if (!match || match[3] === "." || match[3] === "..") return null;
+
+  return { taskId: match[1], submissionId: match[2] };
+}
+
+export function canAccessSubmissionFile(
+  userId: string,
+  path: string,
+  task: { id: string; manager_id: string; assignee_id: string },
+  submission: { id: string; task_id: string; file_path: string | null },
+): boolean {
+  const pathParts = parseSubmissionStoragePath(path);
+  return Boolean(
+    pathParts
+    && task.id === pathParts.taskId
+    && submission.id === pathParts.submissionId
+    && submission.task_id === task.id
+    && submission.file_path === path
+    && (task.manager_id === userId || task.assignee_id === userId),
+  );
+}
+
 export function buildSubmissionStoragePath(
   taskId: string,
   submissionId: string,

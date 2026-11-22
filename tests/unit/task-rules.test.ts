@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
+  canAccessSubmissionFile,
   buildSubmissionStoragePath,
   canTransitionTaskStatus,
   isValidHttpLink,
   isValidSubmissionFile,
   maxSubmissionFileBytes,
+  parseSubmissionStoragePath,
 } from "../../lib/task-rules";
 
 describe("task state transitions", () => {
@@ -57,5 +59,43 @@ describe("submission validation", () => {
         "report one.pdf",
       ),
     ).toBe("task-id/submission-id/report_one.pdf");
+  });
+
+  it("accepts only a single safe filename under UUID task and submission folders", () => {
+    const taskId = "18c85ff8-0465-4e84-9c46-fb60f98f4a17";
+    const submissionId = "f2f2343b-146c-4c7f-8da8-60e8d9da856e";
+    expect(parseSubmissionStoragePath(`${taskId}/${submissionId}/report.pdf`)).toEqual({
+      taskId,
+      submissionId,
+    });
+    expect(parseSubmissionStoragePath(`${taskId}/${submissionId}/../report.pdf`)).toBeNull();
+    expect(parseSubmissionStoragePath(`${taskId}/${submissionId}/..`)).toBeNull();
+    expect(parseSubmissionStoragePath(`${taskId}/${submissionId}/folder\\report.pdf`)).toBeNull();
+    expect(parseSubmissionStoragePath(`${taskId}/${submissionId}/report.pdf/extra`)).toBeNull();
+  });
+
+  it("requires a task party and the exact recorded submission file path", () => {
+    const task = {
+      id: "18c85ff8-0465-4e84-9c46-fb60f98f4a17",
+      manager_id: "manager-id",
+      assignee_id: "member-id",
+    };
+    const submission = {
+      id: "f2f2343b-146c-4c7f-8da8-60e8d9da856e",
+      task_id: task.id,
+      file_path: `${task.id}/f2f2343b-146c-4c7f-8da8-60e8d9da856e/report.pdf`,
+    };
+
+    expect(canAccessSubmissionFile("manager-id", submission.file_path, task, submission)).toBe(true);
+    expect(canAccessSubmissionFile("member-id", submission.file_path, task, submission)).toBe(true);
+    expect(canAccessSubmissionFile("other-member", submission.file_path, task, submission)).toBe(false);
+    expect(
+      canAccessSubmissionFile(
+        "member-id",
+        `${task.id}/f2f2343b-146c-4c7f-8da8-60e8d9da856e/other.pdf`,
+        task,
+        submission,
+      ),
+    ).toBe(false);
   });
 });
