@@ -61,7 +61,6 @@ async function MemberTaskList({ searchParams }: MemberPageProps) {
     && user.user_metadata.full_name.trim()
       ? user.user_metadata.full_name
       : undefined;
-  const today = now.slice(0, 10);
   const counts = countTaskStatuses(tasks);
   const assigneeTerms = new Map([
     [user.id, [displayName, user.email].filter(Boolean).join(" ")],
@@ -143,7 +142,6 @@ async function MemberTaskList({ searchParams }: MemberPageProps) {
                     key={task.id}
                     task={task}
                     href={`/member/tasks/${task.id}`}
-                    today={today}
                     now={now}
                     assigneeName={assigneeName}
                     assigneeEmail={user.email}

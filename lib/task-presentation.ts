@@ -100,24 +100,33 @@ export function filterTasksByQuery(
 export function getTaskDueInfo(
   dueDate: string | null,
   status: TaskStatus,
-  today: string,
+  now: string,
 ): {
   formattedDate: string | null;
   relativeLabel: string | null;
   overdue: boolean;
+  dueSoon: boolean;
 } {
   if (!dueDate) {
-    return { formattedDate: null, relativeLabel: null, overdue: false };
+    return { formattedDate: null, relativeLabel: null, overdue: false, dueSoon: false };
   }
 
   const dueTimestamp = Date.parse(`${dueDate}T00:00:00.000Z`);
-  const todayTimestamp = Date.parse(`${today}T00:00:00.000Z`);
-  if (!Number.isFinite(dueTimestamp) || !Number.isFinite(todayTimestamp)) {
-    return { formattedDate: dueDate, relativeLabel: null, overdue: false };
+  const nowTimestamp = Date.parse(now.length === 10 ? `${now}T00:00:00.000Z` : now);
+  if (!Number.isFinite(dueTimestamp) || !Number.isFinite(nowTimestamp)) {
+    return { formattedDate: dueDate, relativeLabel: null, overdue: false, dueSoon: false };
   }
 
+  const today = now.slice(0, 10);
+  const todayTimestamp = Date.parse(`${today}T00:00:00.000Z`);
   const daysUntil = Math.round((dueTimestamp - todayTimestamp) / 86_400_000);
   const overdue = status !== "approved" && daysUntil < 0;
+  const dueEndTimestamp = dueTimestamp + 86_400_000 - 1;
+  const dueSoon =
+    status !== "approved"
+    && !overdue
+    && dueEndTimestamp >= nowTimestamp
+    && dueEndTimestamp - nowTimestamp <= 2 * 86_400_000;
   const relativeLabel = overdue
     ? `Overdue by ${Math.abs(daysUntil)} ${Math.abs(daysUntil) === 1 ? "day" : "days"}`
     : daysUntil < 0
@@ -137,6 +146,7 @@ export function getTaskDueInfo(
     }).format(dueTimestamp),
     relativeLabel,
     overdue,
+    dueSoon,
   };
 }
 

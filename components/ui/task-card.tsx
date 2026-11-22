@@ -10,19 +10,17 @@ import { StatusBadge } from "./status-badge";
 export function TaskCard({
   task,
   href,
-  today,
   now,
   assigneeName,
   assigneeEmail,
 }: {
   task: Task;
   href: string;
-  today: string;
   now: string;
   assigneeName?: string;
   assigneeEmail?: string;
 }) {
-  const dueInfo = getTaskDueInfo(task.due_date, task.status, today);
+  const dueInfo = getTaskDueInfo(task.due_date, task.status, now);
   const updatedRelativeTime = task.updated_at
     ? formatRelativeTime(task.updated_at, now)
     : null;
@@ -102,11 +100,17 @@ export function TaskCard({
               <span className="text-muted">No due date</span>
             )}
           </span>
-          {dueInfo.relativeLabel && (
-            <span className={dueInfo.overdue ? "font-medium text-danger" : "text-muted"}>
+          {dueInfo.overdue ? (
+            <span className="inline-flex rounded-full border border-status-changes-ring bg-status-changes-bg px-2 py-0.5 font-medium text-status-changes-fg">
               {dueInfo.relativeLabel}
             </span>
-          )}
+          ) : dueInfo.dueSoon ? (
+            <span className="inline-flex rounded-full border border-status-changes-ring bg-status-changes-bg px-2 py-0.5 font-medium text-status-changes-fg">
+              Due soon
+            </span>
+          ) : dueInfo.relativeLabel ? (
+            <span className="text-muted">{dueInfo.relativeLabel}</span>
+          ) : null}
         </div>
         {updatedRelativeTime && (
           <p className="text-xs text-muted">Updated {updatedRelativeTime}</p>

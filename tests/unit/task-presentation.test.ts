@@ -36,21 +36,37 @@ describe("task presentation helpers", () => {
   });
 
   it.each([
-    ["today", "2026-11-21", "assigned", "Nov 21, 2026", "today", false],
-    ["tomorrow", "2026-11-22", "assigned", "Nov 22, 2026", "tomorrow", false],
-    ["future", "2026-11-28", "assigned", "Nov 28, 2026", "in 7 days", false],
-    ["overdue", "2026-11-19", "changes_requested", "Nov 19, 2026", "Overdue by 2 days", true],
-    ["approved", "2026-11-19", "approved", "Nov 19, 2026", null, false],
+    ["today", "2026-11-21", "assigned", "Nov 21, 2026", "today", false, true],
+    ["tomorrow", "2026-11-22", "assigned", "Nov 22, 2026", "tomorrow", false, true],
+    ["future", "2026-11-28", "assigned", "Nov 28, 2026", "in 7 days", false, false],
+    ["overdue", "2026-11-19", "changes_requested", "Nov 19, 2026", "Overdue by 2 days", true, false],
+    ["approved", "2026-11-19", "approved", "Nov 19, 2026", null, false, false],
   ] as const)(
     "formats the %s due state consistently",
-    (_case, dueDate, status, formattedDate, relativeLabel, overdue) => {
+    (_case, dueDate, status, formattedDate, relativeLabel, overdue, dueSoon) => {
       expect(getTaskDueInfo(dueDate, status, "2026-11-21")).toMatchObject({
         formattedDate,
         relativeLabel,
         overdue,
+        dueSoon,
       });
     },
   );
+
+  it("marks tasks due within 48 hours but not approved as due soon", () => {
+    expect(
+      getTaskDueInfo("2026-11-23", "assigned", "2026-11-21T23:59:59.999Z").dueSoon,
+    ).toBe(true);
+    expect(
+      getTaskDueInfo("2026-11-24", "assigned", "2026-11-21T23:59:59.999Z").dueSoon,
+    ).toBe(false);
+    expect(
+      getTaskDueInfo("2026-11-20", "assigned", "2026-11-21T23:59:59.999Z").dueSoon,
+    ).toBe(false);
+    expect(
+      getTaskDueInfo("2026-11-22", "approved", "2026-11-21T23:59:59.999Z").dueSoon,
+    ).toBe(false);
+  });
 
   it("formats update timestamps relatively", () => {
     expect(

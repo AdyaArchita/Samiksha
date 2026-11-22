@@ -66,8 +66,7 @@ async function MemberTaskContent({ params }: MemberTaskPageProps) {
 
   const task = taskData as Task;
   if (task.assignee_id !== user.id) notFound();
-  const today = new Date().toISOString().slice(0, 10);
-  const overdue = getTaskDueInfo(task.due_date, task.status, today).overdue;
+  const dueInfo = getTaskDueInfo(task.due_date, task.status, new Date().toISOString());
 
   const [submissionsResult, reviewsResult] = await Promise.all([
     supabase
@@ -114,7 +113,15 @@ async function MemberTaskContent({ params }: MemberTaskPageProps) {
         </p>
         <p className="mt-5 border-t border-border pt-4 text-sm text-muted">
           Due date: <span className="tabular font-semibold text-foreground">{task.due_date}</span>
-          {overdue && <span className="ml-2 font-medium text-danger">Overdue</span>}
+          {dueInfo.overdue ? (
+            <span className="ml-2 inline-flex rounded-full border border-status-changes-ring bg-status-changes-bg px-2 py-0.5 text-xs font-medium text-status-changes-fg">
+              {dueInfo.relativeLabel}
+            </span>
+          ) : dueInfo.dueSoon ? (
+            <span className="ml-2 inline-flex rounded-full border border-status-changes-ring bg-status-changes-bg px-2 py-0.5 text-xs font-medium text-status-changes-fg">
+              Due soon
+            </span>
+          ) : null}
         </p>
       </section>
       {historyError ? (

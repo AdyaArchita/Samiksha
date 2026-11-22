@@ -66,7 +66,6 @@ async function ManagerDashboard({ searchParams }: ManagerPageProps) {
     && user.user_metadata.full_name.trim()
       ? user.user_metadata.full_name
       : "there";
-  const today = now.slice(0, 10);
   const membersById = new Map(members.map((member) => [member.id, member]));
   const assigneeTerms = new Map(
     members.map((member) => [
@@ -147,7 +146,6 @@ async function ManagerDashboard({ searchParams }: ManagerPageProps) {
                     <TaskCard
                       task={task}
                       href={`/manager/tasks/${task.id}`}
-                      today={today}
                       now={now}
                       assigneeName={membersById.get(task.assignee_id)?.full_name || undefined}
                       assigneeEmail={membersById.get(task.assignee_id)?.email}
@@ -206,7 +204,6 @@ async function ManagerDashboard({ searchParams }: ManagerPageProps) {
                     key={task.id}
                     task={task}
                     href={`/manager/tasks/${task.id}`}
-                    today={today}
                     now={now}
                     assigneeName={membersById.get(task.assignee_id)?.full_name || undefined}
                     assigneeEmail={membersById.get(task.assignee_id)?.email}
