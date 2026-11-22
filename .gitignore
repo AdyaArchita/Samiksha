@@ -34,6 +34,9 @@ yarn-error.log*
 .env*
 !.env.example
 
+# Assignment brief (provided locally; do not commit)
+/Project - 1.pdf
+
 # vercel
 .vercel
 
