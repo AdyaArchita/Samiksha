@@ -121,7 +121,8 @@ create policy "reviews_manager_insert"
 on public.reviews for insert
 to authenticated
 with check (
-  reviewer_id = (select auth.uid())
+  public.is_manager()
+  and reviewer_id = (select auth.uid())
   and exists (
     select 1
     from public.tasks

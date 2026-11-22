@@ -202,9 +202,10 @@ begin
     raise exception 'Task was not found.' using errcode = 'P0001';
   end if;
 
-  if new.reviewer_id is distinct from task_record.manager_id
+  if not public.is_manager()
+     or new.reviewer_id is distinct from task_record.manager_id
      or new.reviewer_id is distinct from (select auth.uid()) then
-    raise exception 'Only the task manager can review this submission.'
+    raise exception 'Only the assigned manager can review this submission.'
       using errcode = 'P0001';
   end if;
 

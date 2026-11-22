@@ -9,13 +9,22 @@ import {
 
 describe("task state transitions", () => {
   it.each([
+    ["assigned", "assigned", false],
     ["assigned", "submitted", true],
+    ["assigned", "changes_requested", false],
+    ["assigned", "approved", false],
+    ["submitted", "assigned", false],
+    ["submitted", "submitted", false],
     ["changes_requested", "submitted", true],
     ["submitted", "approved", true],
     ["submitted", "changes_requested", true],
-    ["assigned", "approved", false],
+    ["changes_requested", "assigned", false],
+    ["changes_requested", "changes_requested", false],
+    ["changes_requested", "approved", false],
+    ["approved", "assigned", false],
     ["approved", "submitted", false],
     ["approved", "changes_requested", false],
+    ["approved", "approved", false],
   ] as const)(
     "%s -> %s is %s",
     (from, to, allowed) => {
