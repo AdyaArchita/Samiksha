@@ -1,6 +1,6 @@
 # Phase 3 notes
 
-This document records the app routes and their intended database access. RLS, trigger, and Storage behavior is **designed from migrations 001-004**, not confirmed against a live project. Manual test items below are `[ ] to verify`.
+This document records the app routes and their intended database access. RLS, trigger, and Storage behavior is **designed from migrations 001-005**, not confirmed against a live project. Manual test items below are `[ ] to verify`.
 
 ## Route map
 

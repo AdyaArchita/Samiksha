@@ -43,6 +43,7 @@ Requirements: Node.js supported by the project dependencies, npm, and a Supabase
    - `supabase/migrations/002_helpers_and_triggers.sql` — security-definer helpers, auth profile/email triggers, version assignment, validation, and status transitions.
    - `supabase/migrations/003_rls.sql` — table grants and row-level access policies.
    - `supabase/migrations/004_storage.sql` — private submission bucket and object access policies.
+   - `supabase/migrations/005_fix_rls_recursion.sql` — recursion-safe member assignment and profile policies.
 4. Install and start the app:
 
    ```bash
