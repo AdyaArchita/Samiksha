@@ -67,7 +67,7 @@ export function TaskTimeline({
                 {event.submission && (
                   <div className="mt-3 rounded-lg bg-background p-3">
                     <p className="tabular text-xs font-semibold uppercase tracking-wide text-muted">
-                      Version {event.submission.version}
+                      v{event.submission.version}
                     </p>
                     <p className="mt-2 whitespace-pre-wrap text-sm text-foreground">
                       {event.submission.body}
