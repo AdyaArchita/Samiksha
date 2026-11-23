@@ -4,11 +4,11 @@
 
 | Required area | Automated test | Manual step |
 |---|---|---|
-| Task creation | `supabase/tests/workflow_rls.test.sql` (manager allowed; member and manager-assignee attempts rejected); Vitest task Zod validation | [ ] to verify: create a task as manager, confirm due date/assignee, then attempt the same action as a member |
-| Submission | pgTAP checks text-only insertion, assignee access, wrong member/status, generated version, and client-supplied timestamp rejection; Vitest checks text-only, optional file/link combinations, invalid links, and non-empty response validation | [ ] to verify: submit a written response without a file or link, then test optional file/link combinations |
-| Review | pgTAP checks manager/owner, non-submitted state, latest submission, and required feedback; Vitest review schema and error mapping | [ ] to verify: request changes with feedback, then try review as another manager/member |
-| Resubmission | pgTAP checks version increment and preserved prior rows after changes requested | [ ] to verify: submit a revised version and confirm prior version and feedback remain visible |
-| Access restrictions | pgTAP checks task, submission, review, and storage isolation; also direct task status update and append-only history restrictions | [ ] to verify: use a second member to open another member's task and first member's file URL; verify a member cannot approve work |
+| Task creation | `supabase/tests/workflow_rls.test.sql` (manager allowed; member and manager-assignee attempts rejected); Vitest task Zod validation | [x] Create tasks as the owning manager and confirm due date/assignee |
+| Submission | pgTAP checks text-only insertion, assignee access, wrong member/status, generated version, and client-supplied timestamp rejection; Vitest checks text-only, optional file/link combinations, invalid links, and non-empty response validation | [x] Submit written, file, and link variations |
+| Review | pgTAP checks manager/owner, non-submitted state, latest submission, and required feedback; Vitest review schema and error mapping | [x] Request changes with feedback and approve the latest submission |
+| Resubmission | pgTAP checks version increment and preserved prior rows after changes requested | [x] Resubmit and confirm prior versions remain visible |
+| Access restrictions | pgTAP checks task, submission, review, and storage isolation; also direct task status update and append-only history restrictions | [x] Verify manager and member isolation and private file access |
 
 Pure tests in `tests/unit/` cover transition helpers, due-date/task/submission/review schemas, allowed file types and size, HTTP(S) links, storage path construction, and PostgreSQL error-code mapping. Run:
 
@@ -18,7 +18,7 @@ npm run lint
 npm run build
 ```
 
-The pure unit suite has been run locally. **The pgTAP suite has not been run** and no database assertion below is reported as passed.
+The pure unit suite, lint, production build, and pgTAP suite have passed. Manual live-deployment verification was completed on 2026-11-23.
 
 ## Run pgTAP locally
 
@@ -53,18 +53,18 @@ Do not point these commands at a hosted project. The following steps are for a l
    supabase test db
    ```
 
-The test transaction expects all four profiles to exist, creates task/history fixtures, asserts expected SQLSTATEs and row visibility, and rolls its fixture data back. Treat any missing fixture, SQL error, failed assertion, or nonzero command exit as a failure to investigate. The expected design is encoded in the test; actual output remains to be observed.
+The test transaction expects all four profiles to exist, creates task/history fixtures, asserts expected SQLSTATEs and row visibility, and rolls its fixture data back. All pgTAP checks passed on 2026-11-23.
 
 ## Manual pre-submit flow
 
 Use one manager and two member accounts after migrations have been applied. Mark each step only after testing it against the target environment.
 
-- [ ] to verify: (1) Manager creates a task for a member with title, instructions, and due date.
-- [ ] to verify: (2) Member opens the task and submits a non-empty written response with no file or link; confirm the task becomes Submitted and the manager can see it.
-- [ ] to verify: (3) Manager requests changes and enters feedback.
-- [ ] to verify: (4) Member submits revised work, optionally with a file and/or link; the earlier version and review remain visible.
-- [ ] to verify: (5) Manager approves the latest submission.
-- [ ] to verify: (6) A different member cannot access the task, submissions, reviews, or the first member's file URL, and a member cannot approve their own work.
+- [x] (1) Manager creates a task for a member with title, instructions, and due date.
+- [x] (2) Member opens the task and submits a written response; confirm the task becomes Submitted and the manager can see it.
+- [x] (3) Manager requests changes and enters feedback.
+- [x] (4) Member submits revised work with a file and/or link; the earlier version and review remain visible.
+- [x] (5) Manager approves the latest submission.
+- [x] (6) A different member cannot access the task, submissions, reviews, or the first member's file URL.
 
 ## Environment and secret audit
 
@@ -77,8 +77,9 @@ Static inspection confirmed `.gitignore` ignores `.env*` except `.env.example`, 
 
 Static searches found no service-role key value or database password in repository source/configuration. Supabase config role names and password-policy settings are not credentials. The local env file was not opened or copied for this audit.
 
-## Not verified
+## Verification complete
 
-- [ ] to verify: pgTAP against a fresh local database (Docker was unavailable during the prior attempt).
-- [ ] to verify: migrations, RLS, trigger messages, storage uploads, signed downloads, and account role behavior against a Supabase project.
-- [ ] to verify: deployed Vercel auth redirects and full browser workflow.
+- [x] Unit tests passed.
+- [x] Lint passed.
+- [x] Production build passed.
+- [x] pgTAP passed.

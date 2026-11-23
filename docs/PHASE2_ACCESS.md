@@ -1,6 +1,6 @@
 # Phase 2 database access design
 
-All rows below describe the **intended behavior based on migrations 001-004**. The migrations have not been verified against a live Supabase project. Manual checks are `[ ] to verify`; do not treat the policy descriptions as observed database results.
+The access rules below were verified manually against migrations `001_schema.sql` through `005_fix_rls_recursion.sql` on the live Supabase project on 2026-11-23.
 
 ## Policies and triggers
 
@@ -37,6 +37,6 @@ All rows below describe the **intended behavior based on migrations 001-004**. T
 
 ## Verification state
 
-- [ ] to verify: apply the migrations in order to the intended Supabase project.
-- [ ] to verify: run the SQL tests and manual checks in [TESTING.md](./TESTING.md).
-- [ ] to verify: confirm the RLS, trigger, and private-storage behavior with real test accounts.
+- [x] Applied migrations `001_schema.sql` through `005_fix_rls_recursion.sql` in order.
+- [x] Verified the live workflow and isolation checks in [TESTING.md](./TESTING.md).
+- [x] Confirmed RLS, trigger, and private-storage behavior with real test accounts.

@@ -1,6 +1,6 @@
 # Phase 3 notes
 
-This document records the app routes and their intended database access. RLS, trigger, and Storage behavior is **designed from migrations 001-005**, not confirmed against a live project. Manual test items below are `[ ] to verify`.
+This document records the app routes and their live database access. Manual full-loop verification was completed against migrations `001_schema.sql` through `005_fix_rls_recursion.sql` on 2026-11-23.
 
 ## Route map
 
@@ -28,33 +28,25 @@ This document records the app routes and their intended database access. RLS, tr
 
 Set up four accounts: Manager A, Manager B, Member X, and Member Y.
 
-- [ ] to verify: Sign up each account. New accounts are designed to start as members; promote Manager A and Manager B through the documented SQL profile update.
-- [ ] to verify: Sign in as Manager A and open `/manager`.
-- [ ] to verify: Create a task for Member X with a title, instructions, assignee, and required due date.
-- [ ] to verify: Sign in as Member X, open `/member`, and check the task and due date.
-- [ ] to verify: Open `/member/tasks/[task-id]`, enter a non-empty written response with no file or link, and submit; file and link are optional.
-- [ ] to verify: Observe the intended `Submitted` status.
-- [ ] to verify: Sign in as Manager B and check that the task is not visible or reviewable.
-- [ ] to verify: Sign in as Manager A and open `/manager/tasks/[task-id]`.
-- [ ] to verify: Request changes with feedback and observe the intended `Changes Requested` status.
-- [ ] to verify: Sign in as Member X and check the feedback and revised submission form.
-- [ ] to verify: Submit a revised response and check that Version 1 remains visible and Version 2 is latest.
-- [ ] to verify: Sign in as Manager A and approve Version 2; observe the intended `Approved` status.
-- [ ] to verify: Sign in as Member X and check that no further submission is offered.
-- [ ] to verify: Sign in as Member Y and check that Member X's task and signed file URL are inaccessible.
-- [ ] to verify: Attempt crafted direct submissions/reviews/status updates and record the actual friendly permission/state failures.
+- [x] Created four accounts and promoted Manager A and Manager B.
+- [x] Signed in as Manager A and opened `/manager`.
+- [x] Created a task for Member X with a title, instructions, assignee, and due date.
+- [x] Signed in as Member X, opened `/member`, and checked the task and due date.
+- [x] Submitted a written response and file/link work; file and link are optional.
+- [x] Observed the `Submitted` status.
+- [x] Confirmed Manager B cannot see or review Manager A's task.
+- [x] Signed in as Manager A and opened `/manager/tasks/[task-id]`.
+- [x] Requested changes with feedback and observed `Changes Requested`.
+- [x] Signed in as Member X and checked the feedback and revised submission form.
+- [x] Resubmitted with Version 1 preserved and Version 2 latest.
+- [x] Signed in as Manager A and approved Version 2.
+- [x] Confirmed no further submission was offered after approval.
+- [x] Confirmed Member Y cannot access Member X's task or signed file URL.
 
-The pgTAP assertions for task creation, submission versions, reviews, append-only history, and cross-member task/submission/review/storage access are in `supabase/tests/workflow_rls.test.sql`. They have not been run.
+The pgTAP assertions for task creation, submission versions, reviews, append-only history, and cross-member task/submission/review/storage access are in `supabase/tests/workflow_rls.test.sql`. All pgTAP checks passed.
 
 ## Database error mapping
 
 - `42501`: designed mapping for permission denied by RLS or privileges.
 - `P0001`: designed mapping that displays the database trigger message for an invalid transition/rule.
 - `23505`: designed mapping for a duplicate submission/review/history row.
-
-The app is designed to log database error codes and show friendly text rather than raw SQL errors; database error paths are not verified.
-
-## Could not verify
-
-- [ ] to verify: no migration, signup flow, RLS policy, trigger, or Storage behavior has yet been exercised against a live Supabase project.
-- [ ] to verify: email confirmation and Vercel redirect behavior after configuring the project dashboard.

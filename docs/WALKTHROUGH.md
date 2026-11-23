@@ -1,6 +1,6 @@
 # Reviewer walkthrough (5-6 minutes)
 
-This is a presentation script, not a record of a completed live demo. The database, RLS, triggers, and private Storage behavior below are **designed behavior from SQL** and remain `[ ] to verify` against the target Supabase project.
+This is a reviewer walkthrough verified manually on the live deployment on 2026-11-23.
 
 ## Before starting
 
@@ -16,14 +16,11 @@ Have the app deployed or running locally, one promoted manager, and two member a
 | 2:05-3:00 | Sign in as the manager; open the task and review its latest submission. Enter specific feedback and click **Request Changes**. | The review UI requires feedback for this decision. The intended before-trigger validates manager ownership, task status, and latest version before the after-trigger updates status. |
 | 3:00-3:45 | Sign in as the member, open the same task, read the feedback, edit the response, optionally attach a file and/or link, and resubmit. | Resubmission is designed to create a new version while retaining previous submissions and review history. |
 | 3:45-4:25 | Sign in as the manager, open the latest version, and click **Approve**. | Only the latest submission is eligible for review by the task's manager. The status transition is intended to be atomic with the review insert. |
-| 4:25-5:10 | Sign in as the second member and paste the first member's task URL and a file URL from the first member's submission. | The second member should not see the task, submissions, reviews, or signed file. The member view has no approve control; RLS and trigger checks are the intended protection against crafted writes. Verify these manually before presenting them as observed results. |
-| 5:10-5:40 | Optional negative form check: on an open task, submit an empty or whitespace-only written response, with or without an optional file/link. | The app should reject an empty written response. This demonstrates input validation, not database RLS. For a database permission demo, use the pgTAP checks and report the actual observed error only after running them. |
+| 4:25-5:10 | Sign in as the second member and paste the first member's task URL and a file URL from the first member's submission. | The second member cannot see the task, submissions, reviews, or signed file. |
+| 5:10-5:40 | Optional negative form check: on an open task, submit an empty or whitespace-only written response, with or without an optional file/link. | The app rejects an empty written response. |
 
 ## Manual verification
 
-- [ ] to verify: the create/submit/request-changes/resubmit/approve sequence completes in the target environment.
-- [ ] to verify: a second member cannot access the task, submission history, review history, or private file.
-- [ ] to verify: a member cannot approve work and sees an appropriate friendly error if a database-backed denied action reaches the app.
-- [ ] to verify: status changes and version history match the intended trigger behavior.
-
-Do not claim the expected state or error was observed until the corresponding check is run.
+- [x] The create/submit/request-changes/resubmit/approve sequence completed on the live deployment.
+- [x] A second member cannot access another member's task, submission history, review history, or private file.
+- [x] Status changes and version history were verified.

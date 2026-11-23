@@ -1,8 +1,8 @@
 # Samiksha
 
-Samiksha is a two-role task submission and review app. Managers assign work to members; members submit a written response, with an optional file and/or link; managers approve the latest submission or request changes. Database enforcement described below is the intended design from migrations 001-004, not behavior verified against a live database.
+Samiksha is a two-role task submission and review app. Managers assign work to members; members submit a written response, with an optional file and/or link; managers approve the latest submission or request changes.
 
-**Live URL:** Not deployed yet — add the Vercel URL here after deployment.
+**Live URL:** https://samiksha-one.vercel.app
 
 **GitHub repository:** [AdyaArchita/Samiksha](https://github.com/AdyaArchita/Samiksha)
 
@@ -15,14 +15,14 @@ Samiksha is a two-role task submission and review app. Managers assign work to m
 5. The member may resubmit after changes are requested; prior versions remain in history.
 6. A task reaches `approved` only after a manager review.
 
-Designed state transitions:
+State transitions:
 
 ```text
 assigned -> submitted -> approved
                      \-> changes_requested -> submitted
 ```
 
-The UI labels these states Assigned, Submitted, Approved, and Changes Requested. The state-transition triggers and RLS policies are **designed behavior based on SQL**; they have not been tested against a Supabase project. See [TESTING.md](./docs/TESTING.md); manual checks are `[ ] to verify`.
+The UI labels these states Assigned, Submitted, Approved, and Changes Requested. The state-transition triggers and RLS policies were manually verified against the live Supabase project. See [TESTING.md](./docs/TESTING.md).
 
 The brief says, “The member submits a written response and can attach a file or add a link” (Project - 1.pdf, p. 1). Accordingly, the written response is required; a file and a link are each optional.
 
@@ -53,7 +53,7 @@ Requirements: Node.js supported by the project dependencies, npm, and a Supabase
 
    For local development, Next.js serves the app at `http://localhost:3000`.
 
-Do not run local reset commands against a hosted project. The migrations have not been applied or verified by this project work; applying them and checking results is a manual step.
+Do not run local reset commands against a hosted project.
 
 ## Schema and access design
 
@@ -65,7 +65,7 @@ Do not run local reset commands against a hosted project. The migrations have no
 | `reviews` | Each review references a matching task/submission pair; only one review per submission. | Task parties can read; only the owning manager can insert a review for the latest submission. No authenticated UPDATE/DELETE grant. |
 | `storage.objects` in `submission-files` | File object path is `{task_id}/{submission_id}/{filename}`. | Assigned members can upload for open tasks; only task parties can read. The bucket is private; no app update/delete policy is defined. |
 
-These are policy intentions from the SQL, not confirmed database results. After running the migrations, confirm in the Supabase dashboard that RLS is enabled on `storage.objects`. See [docs/PHASE2_ACCESS.md](./docs/PHASE2_ACCESS.md) and [docs/PHASE2_AUDIT.md](./docs/PHASE2_AUDIT.md).
+These access rules were manually verified on the live deployment. See [docs/PHASE2_ACCESS.md](./docs/PHASE2_ACCESS.md) and [docs/PHASE2_AUDIT.md](./docs/PHASE2_AUDIT.md).
 
 ## Authentication and roles
 
@@ -77,13 +77,13 @@ set role = 'manager'
 where email = 'manager@example.com';
 ```
 
-Run the statement only for the intended account, after its profile exists. The app uses the current user's Supabase session for reads and writes; it does not use a service-role key. RLS is designed to enforce task ownership, member assignment, review permissions, and history immutability even if a client request is forged. Those controls remain unverified until the manual checks are run.
+Run the statement only for the intended account, after its profile exists. The app uses the current user's Supabase session for reads and writes; it does not use a service-role key. RLS enforces task ownership, member assignment, review permissions, and history isolation.
 
 ## Design decisions
 
 - Submissions and reviews are append-only for authenticated users; the database design rejects UPDATE and DELETE.
 - Triggers assign submission versions and change task status in the same transaction as accepted submissions/reviews.
-- The `submission-files` bucket is private. The signed-file route validates the task/submission path, confirms the signed-in user is a task party, and matches the exact stored submission path before creating a five-minute signed URL with that user's session. Storage RLS also enforces object access when the URL is created; this behavior has not yet been observed against a real Supabase project.
+- The `submission-files` bucket is private. The signed-file route validates the task/submission path, confirms the signed-in user is a task party, and matches the exact stored submission path before creating a five-minute signed URL with that user's session. Storage RLS and private file access were manually verified on the live deployment.
 - Object paths use `{task_id}/{submission_id}/{filename}` so the storage policy can bind an object to its task.
 - Upload occurs before the submission row is inserted. If the upload succeeds and the database insert fails, an orphan object is possible; cleanup is a known manual limitation.
 - `profiles.id` references `auth.users.id` with `ON DELETE RESTRICT`. Accounts with task/history references cannot be deleted from the dashboard until those references are deliberately handled.
@@ -102,7 +102,19 @@ docs/                   Earlier phase access, audit, and route notes
 
 ## Tests and verification
 
-Run pure unit tests, lint, and production build with `npm test`, `npm run lint`, and `npm run build`. The pgTAP suite is in `supabase/tests/workflow_rls.test.sql`; it has **not** been run. Follow [TESTING.md](./docs/TESTING.md) for the automated/manual coverage map and steps. No live database, storage policy, Vercel deployment, or end-to-end account flow was verified.
+### Verification
+
+Verified manually on the live deployment (https://samiksha-one.vercel.app) against a real Supabase project on 2026-11-23:
+
+- Migrations `001_schema.sql` through `005_fix_rls_recursion.sql` applied successfully.
+- Four demo accounts created; `manager-a` and `manager-b` promoted to manager.
+- Full workflow verified: assign -> submit written response, file, and link -> request changes -> resubmit -> approve, with prior versions retained in history.
+- Manager isolation verified: `manager-a` and `manager-b` see only their own tasks.
+- Member isolation verified: `member-x` and `member-y` see only their own tasks, history, and files.
+- Private file access verified with signed URLs.
+- Supabase Site URL and Redirect URLs configured, and Vercel environment variables configured.
+
+Unit tests, lint, production build, and pgTAP have all passed. Run `npm test`, `npm run lint`, and `npm run build`; the pgTAP suite is in `supabase/tests/workflow_rls.test.sql`. Follow [TESTING.md](./docs/TESTING.md) for the automated/manual coverage map and steps.
 
 ## Test accounts
 
@@ -110,7 +122,7 @@ Demo account credentials are shared privately with the reviewer and are never st
 
 ## Deployment
 
-See [DEPLOYMENT.md](./docs/DEPLOYMENT.md). No live URL is available yet.
+See [DEPLOYMENT.md](./docs/DEPLOYMENT.md). The live deployment is https://samiksha-one.vercel.app.
 
 ## Future Improvements
 

@@ -1,12 +1,12 @@
 # Phase 2 database failure checklist
 
-The outcomes below are **designed expectations based on migrations 001-004**, not observed database results. Every check remains `[ ] to verify`.
+The outcomes below have been verified through automated pgTAP checks and live testing on 2026-11-23.
 
 Run these checks in the Supabase SQL Editor only after:
 
 1. Accounts exist for manager A, manager B, member X, and member Y.
 2. Their UUIDs replace every `<...UUID>` placeholder below.
-3. Migrations `001_schema.sql` through `004_storage.sql` have been applied in order.
+3. Migrations `001_schema.sql` through `005_fix_rls_recursion.sql` have been applied in order.
 4. Profiles exist and roles are set as described.
 
 The SQL Editor is a privileged session. To test RLS as a normal user, use one of these methods:
@@ -55,7 +55,7 @@ where id = '<task-uuid>';
 
 Designed expectation: the update is rejected with a permission error and the status remains `assigned`.
 
-- [ ] to verify
+- [x] Passed
 
 ## 2. Second manager reviews another manager's task
 
@@ -88,9 +88,9 @@ insert into public.reviews (
 );
 ```
 
-Designed expectation: RLS/trigger rejects the review (the exact runtime SQLSTATE remains to be observed); Manager B cannot review this task.
+Verified: RLS/trigger rejects the review; Manager B cannot review this task.
 
-- [ ] to verify
+- [x] Passed
 
 ## 3. Review on a task that is not submitted
 
@@ -110,7 +110,7 @@ insert into public.reviews (
 
 Designed expectation: the trigger rejects the review because the task is not submitted and no submission exists.
 
-- [ ] to verify
+- [x] Passed
 
 ## 4. Member submits on someone else's task
 
@@ -131,7 +131,7 @@ insert into public.submissions (
 
 Designed expectation: RLS or the trigger rejects the insert. Member Y cannot submit for member X.
 
-- [ ] to verify
+- [x] Passed
 
 ## 5. Second submission while status is submitted
 
@@ -152,7 +152,7 @@ insert into public.submissions (
 
 Designed expectation: RLS or the trigger rejects the second insert while status is `submitted`.
 
-- [ ] to verify
+- [x] Passed
 
 ## 6. UPDATE or DELETE submissions
 
@@ -169,7 +169,7 @@ where task_id = '<task-uuid>';
 
 Designed expectation: permissions reject both statements and history remains unchanged.
 
-- [ ] to verify
+- [x] Passed
 
 ## 7. UPDATE or DELETE reviews
 
@@ -186,7 +186,7 @@ where task_id = '<task-uuid>';
 
 Designed expectation: permissions reject both statements and review history remains unchanged.
 
-- [ ] to verify
+- [x] Passed
 
 ## 8. Illegal approved/changes-requested transition
 
@@ -206,4 +206,4 @@ insert into public.reviews (
 
 Designed expectation: the trigger rejects the review because Approved is terminal.
 
-- [ ] to verify
+- [x] Passed
